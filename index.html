@@ -94,7 +94,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased" onclick="closeAllDropdowns(event)">
 
     <!-- Auth Modal / Overlay -->
     <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -196,16 +196,44 @@
         </div>
     </header>
 
-    <!-- Sub-Header Tabs (Page Management) -->
+    <!-- Sub-Header Tabs (Page Management & Worksheet Copy Dropdown) -->
     <div class="bg-white border-b border-slate-200 px-4">
-        <div class="max-w-full mx-auto flex items-center justify-between">
-            <div id="tabsContainer" class="flex items-center space-x-1 overflow-x-auto py-1.5">
+        <div class="max-w-full mx-auto flex items-center justify-between py-1.5">
+            <div id="tabsContainer" class="flex items-center space-x-1 overflow-x-auto py-1">
                 <!-- Rendered dynamically -->
             </div>
-            <button onclick="addNewTab()" class="ml-2 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition flex items-center gap-1 whitespace-nowrap border border-slate-200">
-                <i class="fa-solid fa-plus text-[10px]"></i>
-                <span>新增分頁</span>
-            </button>
+            
+            <div class="flex items-center space-x-2 ml-2">
+                <!-- Worksheet Copy Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleCopyTabDropdown(event)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1 whitespace-nowrap border border-slate-200">
+                        <i class="fa-solid fa-copy text-[10px] text-brand-600"></i>
+                        <span>複製工作表</span>
+                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="copyTabDropdown" class="absolute right-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 hidden">
+                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">
+                            快速操作
+                        </div>
+                        <button onclick="duplicateActiveTab()" class="w-full text-left px-3 py-1.5 text-xs text-slate-700 hover:bg-brand-50 hover:text-brand-600 flex items-center gap-2 transition">
+                            <i class="fa-solid fa-clone text-brand-500 w-4"></i> 複製目前工作表
+                        </button>
+                        <div class="border-t border-slate-100 my-1"></div>
+                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            選擇特定工作表複製
+                        </div>
+                        <div id="copyTabDropdownList" class="max-h-48 overflow-y-auto">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="addNewTab()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition flex items-center gap-1 whitespace-nowrap border border-slate-200">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>新增分頁</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -270,14 +298,21 @@
                 </div>
             </div>
 
+            <!-- Table Actions Bar with PDF Button -->
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <i class="fa-solid fa-list-check text-brand-500"></i> 行程明細列表 (雙倍列高加寬檢視)
                 </span>
-                <button onclick="addItineraryRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
-                    <span>新增行程列</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportCurrentPageToPDF()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-[10px]"></i>
+                        <span>匯出 PDF</span>
+                    </button>
+                    <button onclick="addItineraryRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>新增行程列</span>
+                    </button>
+                </div>
             </div>
 
             <div id="itineraryPrintArea" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto p-1.5">
@@ -357,14 +392,21 @@
                 </div>
             </div>
 
+            <!-- Table Actions Bar with PDF Button -->
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <i class="fa-solid fa-receipt text-brand-500"></i> 出差費用報支項目明細列表
                 </span>
-                <button onclick="addExpenseRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
-                    <span>新增報支列</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportCurrentPageToPDF()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-[10px]"></i>
+                        <span>匯出 PDF</span>
+                    </button>
+                    <button onclick="addExpenseRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>新增報支列</span>
+                    </button>
+                </div>
             </div>
 
             <div id="expensePrintArea" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto p-1.5">
@@ -399,21 +441,29 @@
 
         <!-- Page 3: 攜帶物品與行李確認 -->
         <section id="page-packingList" class="tab-page hidden space-y-4">
-            <div class="glass-card rounded-2xl p-4 shadow-sm">
-                <h2 id="packingListMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'packingListMainTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1 rounded-lg transition inline-block">
-                    出國行李清單與航空管制規範勾選確認表
-                </h2>
-                <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-pen text-[9px] mr-1"></i>雙擊標題以編輯名稱</p>
+            <div class="glass-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                <div>
+                    <h2 id="packingListMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'packingListMainTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1 rounded-lg transition inline-block">
+                        出國行李清單與航空管制規範勾選確認表
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-pen text-[9px] mr-1"></i>雙擊標題以編輯名稱</p>
+                </div>
             </div>
 
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <i class="fa-solid fa-suitcase-rolling text-brand-500"></i> 行李打包檢查清單
                 </span>
-                <button onclick="addPackingRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
-                    <span>新增物品列</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportCurrentPageToPDF()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-[10px]"></i>
+                        <span>匯出 PDF</span>
+                    </button>
+                    <button onclick="addPackingRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>新增物品列</span>
+                    </button>
+                </div>
             </div>
 
             <div id="packingPrintArea" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto p-2">
@@ -439,11 +489,18 @@
 
         <!-- Page 4: 旅行分析圖表 -->
         <section id="page-analytics" class="tab-page hidden space-y-4">
-            <div class="glass-card rounded-2xl p-4 shadow-sm">
-                <h2 class="text-xl font-bold text-slate-900">旅行分析圖表與統計</h2>
-                <p class="text-xs text-slate-500 mt-0.5">根據詳細行程表數據即時連動計算與視覺化圖表分析</p>
+            <div class="glass-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">旅行分析圖表與統計</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">根據詳細行程表數據即時連動計算與視覺化圖表分析</p>
+                </div>
+                <button onclick="exportCurrentPageToPDF()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf text-[10px]"></i>
+                    <span>匯出 PDF</span>
+                </button>
             </div>
 
+            <!-- Summary KPI Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
@@ -476,6 +533,7 @@
                 </div>
             </div>
 
+            <!-- Flight Timeline & Route Banner -->
             <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-4 shadow-lg space-y-2">
                 <div class="flex items-center space-x-2 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
                     <i class="fa-solid fa-plane"></i>
@@ -493,7 +551,9 @@
                 </div>
             </div>
 
+            <!-- Charts Container Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Chart 1: Category Expenses -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-chart-pie text-brand-500"></i> 各報支類別開支比例 (TWD)
@@ -503,6 +563,7 @@
                     </div>
                 </div>
 
+                <!-- Chart 2: Daily Activity Count -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-emerald-500"></i> 每日行程活動強度分布
@@ -535,6 +596,11 @@
                         </button>
                     </div>
 
+                    <button onclick="exportCurrentPageToPDF()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-[10px]"></i>
+                        <span>匯出 PDF</span>
+                    </button>
+
                     <button onclick="addNewPhotoCard()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
                         <i class="fa-solid fa-plus text-[10px]"></i>
                         <span>新增照片</span>
@@ -542,20 +608,27 @@
                 </div>
             </div>
 
+            <!-- Photos Grid Container -->
             <div id="photosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Dynamic Photo Cards -->
             </div>
         </section>
 
-        <!-- Dynamic Custom Pages -->
+        <!-- Custom User Added Dynamic Pages Container -->
         <section id="page-customTab" class="tab-page hidden space-y-4">
-            <div class="glass-card rounded-2xl p-4 shadow-sm">
-                <h2 id="customTabTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'customTabTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100 p-1 rounded-lg transition inline-block">
-                    自訂工作表
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">您可以自由新增備忘內容或獨立數據筆記</p>
+            <div class="glass-card rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                <div>
+                    <h2 id="customTabTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'customTabTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100 p-1 rounded-lg transition inline-block">
+                        自訂工作表
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">您可以自由新增備忘內容或獨立數據筆記</p>
+                </div>
+                <button onclick="exportCurrentPageToPDF()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf text-[10px]"></i>
+                    <span>匯出 PDF</span>
+                </button>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div id="customPrintArea" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <textarea id="customTabTextarea" oninput="saveCurrentData()" class="w-full h-96 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-800 leading-relaxed" placeholder="在這裡寫下您的行程筆記、備忘錄或規劃草稿..."></textarea>
             </div>
         </section>
@@ -725,7 +798,6 @@
             console.error("Local cache load failed:", e);
         }
 
-        // --- 強制檢查並補齊「出差報支明細表」分頁 ---
         if (!appData.tabs || !appData.tabs.some(t => t.id === 'expenseReport')) {
             appData.tabs = [
                 { id: 'detailedItinerary', name: '行程明細列表', type: 'system' },
@@ -737,7 +809,7 @@
             localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
         }
 
-        // --- 2. AUTHENTICATION & SYNC MANAGEMENT ---
+        // --- AUTHENTICATION & SYNC MANAGEMENT ---
 
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -789,7 +861,6 @@
 
                     appData = val;
                     if (!appData.tabs) appData.tabs = defaultAppData.tabs;
-                    // 同步確保遠端資料也有包含報支明細表分頁
                     if (!appData.tabs.some(t => t.id === 'expenseReport')) {
                         appData.tabs.splice(1, 0, { id: 'expenseReport', name: '出差報支明細表', type: 'system' });
                     }
@@ -879,7 +950,7 @@
             document.getElementById('lastSavedTime').textContent = `上次儲存：${time}`;
         }
 
-        // --- 3. TAB / WORKSHEET MANAGEMENT ---
+        // --- TAB & WORKSHEET COPY MANAGEMENT ---
 
         function renderTabs() {
             const container = document.getElementById('tabsContainer');
@@ -924,6 +995,85 @@
             renderActivePageContent();
         }
 
+        function toggleCopyTabDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('copyTabDropdown');
+            const listContainer = document.getElementById('copyTabDropdownList');
+            
+            if (dropdown.classList.contains('hidden')) {
+                // Populate specific worksheet list
+                listContainer.innerHTML = '';
+                appData.tabs.forEach(tab => {
+                    const item = document.createElement('button');
+                    item.className = 'w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition truncate';
+                    item.innerHTML = `<i class="fa-regular fa-file text-slate-400 w-4"></i> ${escapeHtml(tab.name)}`;
+                    item.onclick = () => duplicateSpecificTab(tab.id);
+                    listContainer.appendChild(item);
+                });
+                
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        function closeAllDropdowns(e) {
+            const dropdown = document.getElementById('copyTabDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        function duplicateActiveTab() {
+            duplicateSpecificTab(activeTabId);
+        }
+
+        function duplicateSpecificTab(targetTabId) {
+            const sourceTab = appData.tabs.find(t => t.id === targetTabId);
+            if (!sourceTab) return;
+
+            const newId = 'tab_' + Date.now();
+            const newName = sourceTab.name + ' (複本)';
+
+            appData.tabs.push({
+                id: newId,
+                name: newName,
+                type: 'custom',
+                sourceType: targetTabId
+            });
+
+            // Deep copy content data based on source
+            if (targetTabId === 'detailedItinerary') {
+                appData.customItineraries = appData.customItineraries || {};
+                appData.customItineraries[newId] = JSON.parse(JSON.stringify({
+                    title: appData.itineraryTitle,
+                    meta: appData.itineraryMeta,
+                    rows: appData.itineraryRows
+                }));
+            } else if (targetTabId === 'expenseReport') {
+                appData.customExpenses = appData.customExpenses || {};
+                appData.customExpenses[newId] = JSON.parse(JSON.stringify({
+                    title: appData.expenseTitle,
+                    meta: appData.expenseMeta,
+                    rows: appData.expenseRows
+                }));
+            } else if (targetTabId === 'packingList') {
+                appData.customPackings = appData.customPackings || {};
+                appData.customPackings[newId] = JSON.parse(JSON.stringify({
+                    title: appData.packingTitle,
+                    rows: appData.packingRows
+                }));
+            } else {
+                appData.customNotes[newId] = appData.customNotes[targetTabId] || '';
+            }
+
+            activeTabId = newId;
+            saveCurrentData();
+            renderTabs();
+            renderActivePageContent();
+            document.getElementById('copyTabDropdown').classList.add('hidden');
+        }
+
         function addNewTab() {
             const newId = 'custom_' + Date.now();
             const tabName = prompt('請輸入新分頁/工作表名稱：', '新工作表');
@@ -952,6 +1102,9 @@
             if (confirm('確定要刪除此工作表嗎？內含數據將無法復原。')) {
                 appData.tabs = appData.tabs.filter(t => t.id !== tabId);
                 delete appData.customNotes[tabId];
+                if (appData.customItineraries) delete appData.customItineraries[tabId];
+                if (appData.customExpenses) delete appData.customExpenses[tabId];
+                if (appData.customPackings) delete appData.customPackings[tabId];
                 activeTabId = appData.tabs[0].id;
                 saveCurrentData();
                 renderTabs();
@@ -992,7 +1145,7 @@
             }
         }
 
-        // --- 4. PAGE 1: DETAILED ITINERARY LOGIC ---
+        // --- PAGE 1: DETAILED ITINERARY LOGIC ---
 
         function renderItineraryPage() {
             document.getElementById('itineraryMainTitle').textContent = appData.itineraryTitle || 'XXXX 五天四夜深度自由行極致詳細行程表';
@@ -1113,7 +1266,7 @@
             renderItineraryPage();
         }
 
-        // --- 5. PAGE 2: EXPENSE REPORT LOGIC ---
+        // --- PAGE 2: EXPENSE REPORT LOGIC ---
 
         function renderExpensePage() {
             document.getElementById('expenseReportMainTitle').textContent = appData.expenseTitle || '出差報支明細表';
@@ -1243,7 +1396,7 @@
             renderExpensePage();
         }
 
-        // --- 6. PAGE 3: PACKING LIST LOGIC ---
+        // --- PAGE 3: PACKING LIST LOGIC ---
 
         function renderPackingPage() {
             document.getElementById('packingListMainTitle').textContent = appData.packingTitle || '出國行李清單與航空管制規範勾選確認表';
@@ -1356,7 +1509,7 @@
             renderPackingPage();
         }
 
-        // --- 7. PAGE 4: ANALYTICS & CHARTS LOGIC ---
+        // --- PAGE 4: ANALYTICS & CHARTS LOGIC ---
 
         let categoryExpenseChart = null;
         let dailyActivityChart = null;
@@ -1445,7 +1598,7 @@
             });
         }
 
-        // --- 8. PAGE 5: TRAVEL PHOTOS LOGIC ---
+        // --- PAGE 5: TRAVEL PHOTOS LOGIC ---
 
         function setPhotoViewMode(mode) {
             appData.photoViewMode = mode;
@@ -1544,7 +1697,7 @@
             document.getElementById('photoLightbox').classList.add('hidden');
         }
 
-        // --- 9. EDITABLE TITLE HELPER ---
+        // --- EDITABLE TITLE HELPER ---
 
         function makeEditable(element, fieldKey) {
             const currentText = element.textContent.trim();
@@ -1576,7 +1729,7 @@
             input.focus();
         }
 
-        // --- 10. EXPORT / IMPORT TOOLS (EXCEL, PNG, PDF) ---
+        // --- EXPORT / IMPORT TOOLS (EXCEL, PNG, PDF) ---
 
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
@@ -1745,6 +1898,60 @@
             });
         }
 
+        // Dedicated one-click PDF export function for each active page tab
+        function exportCurrentPageToPDF() {
+            let elementToCapture;
+            let filenamePrefix = 'GoTrip';
+
+            if (activeTabId === 'detailedItinerary') {
+                elementToCapture = document.getElementById('page-detailedItinerary');
+                filenamePrefix = '行程明細列表';
+            } else if (activeTabId === 'expenseReport') {
+                elementToCapture = document.getElementById('page-expenseReport');
+                filenamePrefix = '出差報支明細表';
+            } else if (activeTabId === 'packingList') {
+                elementToCapture = document.getElementById('page-packingList');
+                filenamePrefix = '行李確認清單';
+            } else if (activeTabId === 'analytics') {
+                elementToCapture = document.getElementById('page-analytics');
+                filenamePrefix = '旅行分析圖表';
+            } else if (activeTabId === 'photos') {
+                elementToCapture = document.getElementById('page-photos');
+                filenamePrefix = '旅行照片';
+            } else {
+                elementToCapture = document.getElementById('page-customTab');
+                const tabObj = appData.tabs.find(t => t.id === activeTabId);
+                filenamePrefix = tabObj ? tabObj.name : '自訂工作表';
+            }
+
+            if (!elementToCapture) return;
+
+            html2canvas(elementToCapture, { scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= pdfHeight;
+                }
+
+                pdf.save(`${filenamePrefix}_${Date.now()}.pdf`);
+            });
+        }
+
         function escapeHtml(str) {
             return String(str)
                 .replace(/&/g, "&amp;")
@@ -1754,7 +1961,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // --- 11. AUTH MODAL DOM EVENT HANDLERS ---
+        // --- AUTH MODAL DOM EVENT HANDLERS ---
         document.getElementById('tabLoginBtn').onclick = () => {
             isAuthModeLogin = true;
             document.getElementById('tabLoginBtn').className = "flex-1 py-2 font-medium text-brand-600 border-b-2 border-brand-600 text-center text-sm";
