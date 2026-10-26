@@ -521,32 +521,30 @@
         let currentUser = null;
         let activeTabId = 'detailedItinerary';
         let isAuthModeLogin = true;
-        let lastLocalEditTimestamp = 0; // 用於追蹤最近一次本地編輯時間
-        let saveTimeout = null; // 用於防手震儲存
+        let lastLocalEditTimestamp = 0;
+        let saveTimeout = null;
 
         // Default Data Structure
-        let appData = {
+        let defaultAppData = {
             tabs: [
                 { id: 'detailedItinerary', name: '詳細行程表', type: 'system' },
                 { id: 'packingList', name: '攜帶物品與行李確認', type: 'system' },
                 { id: 'analytics', name: '旅行分析圖表', type: 'system' },
                 { id: 'photos', name: '旅行照片', type: 'system' }
             ],
-            photoViewMode: 'medium', // small, medium, large
+            photoViewMode: 'medium',
             itineraryTitle: 'XXXX 五天四夜深度自由行極致詳細行程表',
             itineraryMeta: {
                 duration: '',
                 destination: '',
                 travelers: '',
                 hotel: '',
-                // Outbound Flight & Transport
                 outboundAirport: '',
                 outboundFlight: '',
                 outboundTerminal: '',
                 outboundTime: '',
                 outboundDriver: '',
                 outboundPickupTime: '',
-                // Inbound Flight & Transport
                 inboundAirport: '',
                 inboundFlight: '',
                 inboundTerminal: '',
@@ -571,9 +569,19 @@
             customNotes: {}
         };
 
+        // 初始化時優先從 localStorage 讀取快取，避免重新整理 (F5) 時閃爍預設舊資料
+        let appData = defaultAppData;
+        try {
+            const cachedData = localStorage.getItem('gotrip_local_cache');
+            if (cachedData) {
+                appData = JSON.parse(cachedData);
+            }
+        } catch (e) {
+            console.error("Local cache load failed:", e);
+        }
+
         // --- 2. AUTHENTICATION & SYNC MANAGEMENT ---
 
-        // Monitor Auth State
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
@@ -589,7 +597,6 @@
             }
         });
 
-        // Connection Status Monitoring
         const connectedRef = database.ref('.info/connected');
         connectedRef.on('value', (snap) => {
             if (snap.val() === true && currentUser) {
@@ -613,7 +620,6 @@
             }
         }
 
-        // Attach Realtime DB Sync (防閃爍與避免打字中途重新渲染)
         function attachRealtimeSync() {
             if (!currentUser) return;
             const userDbRef = database.ref(`users/${currentUser.uid}/tripPlannerData`);
@@ -621,18 +627,19 @@
             userDbRef.on('value', (snapshot) => {
                 const val = snapshot.val();
                 if (val) {
-                    // 檢查使用者是否正在輸入框中打字，或是否為剛才本地觸發的寫入回傳
                     const isUserTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
                     const isRecentLocalEdit = (Date.now() - lastLocalEditTimestamp) < 1500;
 
                     appData = val;
-                    if (!appData.tabs) appData.tabs = defaultTabs();
+                    if (!appData.tabs) appData.tabs = defaultAppData.tabs;
                     if (!appData.itineraryMeta) appData.itineraryMeta = {};
                     if (!appData.photoViewMode) appData.photoViewMode = 'medium';
 
+                    // 同步更新 localStorage 快取
+                    localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
+
                     renderTabs();
                     
-                    // 若使用者正在打字或剛做完本地編輯，不執行全頁面重新渲染，防止干擾游標與閃爍
                     if (!isUserTyping && !isRecentLocalEdit) {
                         renderActivePageContent();
                     }
@@ -644,22 +651,19 @@
         }
 
         function saveCurrentData() {
-            lastLocalEditTimestamp = Date.now(); // 記錄本地編輯時間
+            lastLocalEditTimestamp = Date.now();
 
-            // Collect metadata inputs
             appData.itineraryMeta = {
                 duration: document.getElementById('meta-duration')?.value || '',
                 destination: document.getElementById('meta-destination')?.value || '',
                 travelers: document.getElementById('meta-travelers')?.value || '',
                 hotel: document.getElementById('meta-hotel')?.value || '',
-                // Outbound Flight & Pickup
                 outboundAirport: document.getElementById('meta-outbound-airport')?.value || '',
                 outboundFlight: document.getElementById('meta-outbound-flight')?.value || '',
                 outboundTerminal: document.getElementById('meta-outbound-terminal')?.value || '',
                 outboundTime: document.getElementById('meta-outbound-time')?.value || '',
                 outboundDriver: document.getElementById('meta-outbound-driver')?.value || '',
                 outboundPickupTime: document.getElementById('meta-outbound-pickup-time')?.value || '',
-                // Inbound Flight & Pickup
                 inboundAirport: document.getElementById('meta-inbound-airport')?.value || '',
                 inboundFlight: document.getElementById('meta-inbound-flight')?.value || '',
                 inboundTerminal: document.getElementById('meta-inbound-terminal')?.value || '',
@@ -672,11 +676,13 @@
             const timestamp = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
             appData.lastSaved = timestamp;
 
+            // 立即寫入 localStorage 本地快取，確保重新整理瞬間載入最新狀態
+            localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
+
             if (activeTabId === 'analytics') {
                 renderAnalytics();
             }
 
-            // 使用防手震（Debounce）處理 Firebase 寫入，避免連續字元輸入造成頻繁閃爍與請求塞車
             if (currentUser) {
                 updateSyncStatus('syncing', '同步儲存中...');
                 clearTimeout(saveTimeout);
@@ -702,15 +708,6 @@
         }
 
         // --- 3. TAB / WORKSHEET MANAGEMENT ---
-
-        function defaultTabs() {
-            return [
-                { id: 'detailedItinerary', name: '詳細行程表', type: 'system' },
-                { id: 'packingList', name: '攜帶物品與行李確認', type: 'system' },
-                { id: 'analytics', name: '旅行分析圖表', type: 'system' },
-                { id: 'photos', name: '旅行照片', type: 'system' }
-            ];
-        }
 
         function renderTabs() {
             const container = document.getElementById('tabsContainer');
