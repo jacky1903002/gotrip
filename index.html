@@ -285,7 +285,7 @@
                     <thead>
                         <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200">
                             <th class="p-2 w-8 text-center">拖拽</th>
-                            <th class="p-2 w-24">天數</th>
+                            <th class="p-2 w-32">日期</th>
                             <th class="p-2 w-20">時段</th>
                             <th class="p-2 w-28">開始時間</th>
                             <th class="p-2 w-28">結束時間</th>
@@ -553,8 +553,8 @@
                 inboundPickupTime: ''
             },
             itineraryRows: [
-                { id: 'row1', day: 'DAY1', period: '上午', startTime: '09:00', endTime: '12:00', category: '景點', topic: '成田機場抵達與住宿Check-in', detail: '搭乘早班機抵達東京成田機場，購買Skyliner車票前往飯店寄放行李。', transport: 'Skyliner 快線至日暮里轉山手線', currency: '日圓 JPY', cost: 2500, status: '已預約', notes: '記得索取實體車票與實名優惠券' },
-                { id: 'row2', day: 'DAY1', period: '下午', startTime: '13:00', endTime: '17:00', category: '購物', topic: '淺草寺與仲見世通漫步', detail: '品嚐人形燒、參拜淺草寺求籤，欣賞雷門大燈籠。', transport: '地鐵銀座線', currency: '日圓 JPY', cost: 3000, status: '免預約', notes: '人潮較多請妥善保管個人財物' }
+                { id: 'row1', date: '2026-10-26', period: '上午', startTime: '09:00', endTime: '12:00', category: '景點', topic: '成田機場抵達與住宿Check-in', detail: '搭乘早班機抵達東京成田機場，購買Skyliner車票前往飯店寄放行李。', transport: 'Skyliner 快線至日暮里轉山手線', currency: '日圓 JPY', cost: 2500, status: '已預約', notes: '記得索取實體車票與實名優惠券' },
+                { id: 'row2', date: '2026-10-26', period: '下午', startTime: '13:00', endTime: '17:00', category: '購物', topic: '淺草寺與仲見世通漫步', detail: '品嚐人形燒、參拜淺草寺求籤，欣賞雷門大燈籠。', transport: '地鐵銀座線', currency: '日圓 JPY', cost: 3000, status: '免預約', notes: '人潮較多請妥善保管個人財物' }
             ],
             packingTitle: '出國行李清單與航空管制規範勾選確認表',
             packingRows: [
@@ -676,7 +676,7 @@
             const timestamp = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
             appData.lastSaved = timestamp;
 
-            // 立即寫入 localStorage 本地快取，確保重新整理瞬間載入最新狀態
+            // 靜態寫入 localStorage 本地快取
             localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
 
             if (activeTabId === 'analytics') {
@@ -850,12 +850,12 @@
                 tr.setAttribute('data-id', row.id);
                 tr.className = 'hover:bg-slate-50/80 transition';
 
+                const dateVal = row.date || row.day || '';
+
                 tr.innerHTML = `
                     <td class="p-1.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
                     <td class="p-1">
-                        <select onchange="updateItineraryField('${row.id}', 'day', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
-                            ${generateDayOptions(row.day)}
-                        </select>
+                        <input type="date" value="${dateVal}" onchange="updateItineraryField('${row.id}', 'date', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs focus:ring-1 focus:ring-brand-500">
                     </td>
                     <td class="p-1">
                         <select onchange="updateItineraryField('${row.id}', 'period', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
@@ -905,15 +905,6 @@
             });
         }
 
-        function generateDayOptions(selectedDay) {
-            let options = '';
-            for (let i = 1; i <= 15; i++) {
-                const dayStr = `DAY${i}`;
-                options += `<option value="${dayStr}" ${selectedDay === dayStr ? 'selected' : ''}>DAY ${i}</option>`;
-            }
-            return options;
-        }
-
         function generateCategoryOptions(selectedCat) {
             const categories = ['景點', '美食', '交通', '住宿', '購物', '體驗', '其它'];
             return categories.map(cat => `<option value="${cat}" ${selectedCat === cat ? 'selected' : ''}>${cat}</option>`).join('');
@@ -925,9 +916,10 @@
         }
 
         function addItineraryRow() {
+            const todayStr = new Date().toISOString().split('T')[0];
             const newRow = {
                 id: 'row_' + Date.now(),
-                day: 'DAY1',
+                date: todayStr,
                 period: '上午',
                 startTime: '09:00',
                 endTime: '10:00',
@@ -949,6 +941,7 @@
             const row = appData.itineraryRows.find(r => r.id === id);
             if (row) {
                 row[field] = value;
+                if (field === 'date') row.day = value; // 保持資料向下相容
                 saveCurrentData();
             }
         }
@@ -1091,7 +1084,7 @@
                 const cat = r.category || '其它';
                 categoryCostMap[cat] = (categoryCostMap[cat] || 0) + cost;
 
-                const day = r.day || 'DAY1';
+                const day = r.date || r.day || '未指定日期';
                 dayActivityMap[day] = (dayActivityMap[day] || 0) + 1;
             });
 
@@ -1138,16 +1131,12 @@
             const dailyCtx = document.getElementById('dailyActivityChart').getContext('2d');
             if (dailyActivityChart) dailyActivityChart.destroy();
 
-            const sortedDays = Object.keys(dayActivityMap).sort((a,b) => {
-                const numA = parseInt(a.replace('DAY','')) || 0;
-                const numB = parseInt(b.replace('DAY','')) || 0;
-                return numA - numB;
-            });
+            const sortedDays = Object.keys(dayActivityMap).sort();
 
             dailyActivityChart = new Chart(dailyCtx, {
                 type: 'bar',
                 data: {
-                    labels: sortedDays.length ? sortedDays : ['DAY1'],
+                    labels: sortedDays.length ? sortedDays : ['今日'],
                     datasets: [{
                         label: '活動與景點個數',
                         data: sortedDays.map(d => dayActivityMap[d]),
@@ -1303,7 +1292,7 @@
             const meta = appData.itineraryMeta || {};
 
             // 1. Detailed Itinerary Sheet
-            const itineraryHeader = ["天數", "時段", "開始時間", "結束時間", "行程類別", "行程主題", "詳細景點與活動內容說明", "交通路線與乘車指引", "幣別", "預估花費", "預約狀態及票券", "備註與實用小貼士"];
+            const itineraryHeader = ["日期", "時段", "開始時間", "結束時間", "行程類別", "行程主題", "詳細景點與活動內容說明", "交通路線與乘車指引", "幣別", "預估花費", "預約狀態及票券", "備註與實用小貼士"];
             const itineraryData = [
                 ["標題:", appData.itineraryTitle],
                 ["旅遊天數:", meta.duration || '', "目的地:", meta.destination || '', "同行人數:", meta.travelers || '', "住宿地點:", meta.hotel || ''],
@@ -1317,7 +1306,7 @@
 
             appData.itineraryRows.forEach(r => {
                 itineraryData.push([
-                    r.day, r.period, r.startTime, r.endTime, r.category, r.topic, r.detail, r.transport, r.currency, Number(r.cost)||0, r.status, r.notes
+                    r.date || r.day || '', r.period, r.startTime, r.endTime, r.category, r.topic, r.detail, r.transport, r.currency, Number(r.cost)||0, r.status, r.notes
                 ]);
             });
 
@@ -1398,14 +1387,14 @@
                         let isDataSection = false;
                         for (let i = 0; i < json.length; i++) {
                             const row = json[i];
-                            if (row[0] === "天數") {
+                            if (row[0] === "日期" || row[0] === "天數") {
                                 isDataSection = true;
                                 continue;
                             }
                             if (isDataSection && row.length > 0) {
                                 rows.push({
                                     id: 'row_' + Date.now() + '_' + i,
-                                    day: row[0] || 'DAY1',
+                                    date: row[0] || '',
                                     period: row[1] || '上午',
                                     startTime: row[2] || '',
                                     endTime: row[3] || '',
