@@ -521,6 +521,8 @@
         let currentUser = null;
         let activeTabId = 'detailedItinerary';
         let isAuthModeLogin = true;
+        let lastLocalEditTimestamp = 0; // 用於追蹤最近一次本地編輯時間
+        let saveTimeout = null; // 用於防手震儲存
 
         // Default Data Structure
         let appData = {
@@ -611,7 +613,7 @@
             }
         }
 
-        // Attach Realtime DB Sync
+        // Attach Realtime DB Sync (防閃爍與避免打字中途重新渲染)
         function attachRealtimeSync() {
             if (!currentUser) return;
             const userDbRef = database.ref(`users/${currentUser.uid}/tripPlannerData`);
@@ -619,12 +621,21 @@
             userDbRef.on('value', (snapshot) => {
                 const val = snapshot.val();
                 if (val) {
+                    // 檢查使用者是否正在輸入框中打字，或是否為剛才本地觸發的寫入回傳
+                    const isUserTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+                    const isRecentLocalEdit = (Date.now() - lastLocalEditTimestamp) < 1500;
+
                     appData = val;
                     if (!appData.tabs) appData.tabs = defaultTabs();
                     if (!appData.itineraryMeta) appData.itineraryMeta = {};
                     if (!appData.photoViewMode) appData.photoViewMode = 'medium';
+
                     renderTabs();
-                    renderActivePageContent();
+                    
+                    // 若使用者正在打字或剛做完本地編輯，不執行全頁面重新渲染，防止干擾游標與閃爍
+                    if (!isUserTyping && !isRecentLocalEdit) {
+                        renderActivePageContent();
+                    }
                     updateLastSavedDisplay();
                 } else {
                     saveCurrentData();
@@ -633,6 +644,8 @@
         }
 
         function saveCurrentData() {
+            lastLocalEditTimestamp = Date.now(); // 記錄本地編輯時間
+
             // Collect metadata inputs
             appData.itineraryMeta = {
                 duration: document.getElementById('meta-duration')?.value || '',
@@ -659,23 +672,27 @@
             const timestamp = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
             appData.lastSaved = timestamp;
 
-            if (currentUser) {
-                updateSyncStatus('syncing', '同步儲存中...');
-                database.ref(`users/${currentUser.uid}/tripPlannerData`).set(appData)
-                    .then(() => {
-                        updateSyncStatus('online', '已同步');
-                        updateLastSavedDisplay(timestamp);
-                    })
-                    .catch((err) => {
-                        console.error("Save failed:", err);
-                        updateSyncStatus('offline', '儲存失敗');
-                    });
-            } else {
-                updateLastSavedDisplay(timestamp);
-            }
-
             if (activeTabId === 'analytics') {
                 renderAnalytics();
+            }
+
+            // 使用防手震（Debounce）處理 Firebase 寫入，避免連續字元輸入造成頻繁閃爍與請求塞車
+            if (currentUser) {
+                updateSyncStatus('syncing', '同步儲存中...');
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    database.ref(`users/${currentUser.uid}/tripPlannerData`).set(appData)
+                        .then(() => {
+                            updateSyncStatus('online', '已同步');
+                            updateLastSavedDisplay(timestamp);
+                        })
+                        .catch((err) => {
+                            console.error("Save failed:", err);
+                            updateSyncStatus('offline', '儲存失敗');
+                        });
+                }, 400);
+            } else {
+                updateLastSavedDisplay(timestamp);
             }
         }
 
@@ -1165,7 +1182,6 @@
 
             const mode = appData.photoViewMode || 'medium';
 
-            // Update mode switcher button styles
             const btnSmall = document.getElementById('btnPhotoSmall');
             const btnMedium = document.getElementById('btnPhotoMedium');
             const btnLarge = document.getElementById('btnPhotoLarge');
@@ -1174,7 +1190,6 @@
             btnMedium.className = `px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${mode === 'medium' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`;
             btnLarge.className = `px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${mode === 'large' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`;
 
-            // Adjust grid layout and height based on mode
             let gridClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
             let imgHeightClass = 'h-48';
 
