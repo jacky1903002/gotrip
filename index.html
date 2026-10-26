@@ -309,7 +309,6 @@
             <div class="glass-card rounded-xl p-3 shadow-sm border border-slate-200/80 space-y-2">
                 <div class="flex items-center justify-between gap-2">
                     <div>
-                        <!-- 1. 大表頭：出差報支明細表 (可雙擊更改名稱) -->
                         <h2 id="expenseReportMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'expenseReportMainTitle')" class="text-lg md:text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 px-2 py-0.5 rounded-lg transition inline-block">
                             出差報支明細表
                         </h2>
@@ -317,7 +316,6 @@
                     </div>
                 </div>
 
-                <!-- 2. 次表頭：包含填表日期, 員工姓名, 員工工號, 所屬部門, 職稱, 出差地點, 出差事由, 出差期間, 費用總額(自動加總) -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 bg-slate-50/90 p-2.5 rounded-xl border border-slate-200/80 text-xs">
                     <div class="flex items-center gap-1.5">
                         <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">填表日期:</label>
@@ -352,7 +350,6 @@
                         <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">出差期間:</label>
                         <input type="text" id="expense-period" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="如：10/26~10/31">
                     </div>
-                    <!-- 次表頭自動加總欄位 -->
                     <div class="flex items-center gap-1.5 bg-brand-50/80 px-2 py-0.5 rounded border border-brand-200">
                         <label class="font-bold text-brand-800 text-[11px] whitespace-nowrap">費用總額:</label>
                         <span id="expense-header-total" class="font-bold font-mono text-brand-700 text-xs truncate">NT$ 0</span>
@@ -360,7 +357,6 @@
                 </div>
             </div>
 
-            <!-- Table Actions Bar -->
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <i class="fa-solid fa-receipt text-brand-500"></i> 出差費用報支項目明細列表
@@ -371,7 +367,6 @@
                 </button>
             </div>
 
-            <!-- 3. 主表格：包含日曆點選日期、費用類別選單、費用項目、幣別選單、外幣金額、匯率、折合台幣(TWD)、備註與操作 -->
             <div id="expensePrintArea" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto p-1.5">
                 <table class="w-full text-left text-xs border-collapse min-w-[950px]">
                     <thead>
@@ -610,7 +605,6 @@
         let lastLocalEditTimestamp = 0;
         let saveTimeout = null;
 
-        // 匯率快取表（新增：日圓, 台幣, 美金, 歐元, 泰銖, 英鎊, 馬幣, 新幣, 越南盾, 人民幣, 韓元）
         const exchangeRateCache = {
             '日圓 JPY': 0.21,
             '台幣 TWD': 1.0,
@@ -731,6 +725,18 @@
             console.error("Local cache load failed:", e);
         }
 
+        // --- 強制檢查並補齊「出差報支明細表」分頁 ---
+        if (!appData.tabs || !appData.tabs.some(t => t.id === 'expenseReport')) {
+            appData.tabs = [
+                { id: 'detailedItinerary', name: '行程明細列表', type: 'system' },
+                { id: 'expenseReport', name: '出差報支明細表', type: 'system' },
+                { id: 'packingList', name: '攜帶物品與行李確認', type: 'system' },
+                { id: 'analytics', name: '旅行分析圖表', type: 'system' },
+                { id: 'photos', name: '旅行照片', type: 'system' }
+            ];
+            localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
+        }
+
         // --- 2. AUTHENTICATION & SYNC MANAGEMENT ---
 
         auth.onAuthStateChanged((user) => {
@@ -783,6 +789,10 @@
 
                     appData = val;
                     if (!appData.tabs) appData.tabs = defaultAppData.tabs;
+                    // 同步確保遠端資料也有包含報支明細表分頁
+                    if (!appData.tabs.some(t => t.id === 'expenseReport')) {
+                        appData.tabs.splice(1, 0, { id: 'expenseReport', name: '出差報支明細表', type: 'system' });
+                    }
                     if (!appData.itineraryMeta) appData.itineraryMeta = {};
                     if (!appData.expenseMeta) appData.expenseMeta = {};
                     if (!appData.expenseRows) appData.expenseRows = [];
@@ -1062,16 +1072,12 @@
             return categories.map(cat => `<option value="${cat}" ${selectedCat === cat ? 'selected' : ''}>${cat}</option>`).join('');
         }
 
-        // 幣別下拉選單（包含：日圓 JPY, 台幣 TWD, 美金 USD, 歐元 EUR, 泰銖 THB, 英鎊 GBP, 馬幣 MYR, 新幣 SGD, 越南盾 VND, 人民幣 CNY, 韓元 KRW）
         function generateCurrencyOptions(selectedCurr) {
             const currencies = [
-                '住宿', '機票', '交際費', '伴手禮', '膳雜費', '其他', // guard
                 '日圓 JPY', '台幣 TWD', '美金 USD', '歐元 EUR', '泰銖 THB', 
                 '英鎊 GBP', '馬幣 MYR', '新幣 SGD', '越南盾 VND', '人民幣 CNY', '韓元 KRW'
             ];
-            // 過濾僅保留幣別選單項目
-            const currList = currencies.filter(c => c.includes(' ') || c === '台幣 TWD');
-            return currList.map(c => `<option value="${c}" ${selectedCurr === c ? 'selected' : ''}>${c}</option>`).join('');
+            return currencies.map(c => `<option value="${c}" ${selectedCurr === c ? 'selected' : ''}>${c}</option>`).join('');
         }
 
         function addItineraryRow() {
@@ -1165,7 +1171,6 @@
                 tbody.appendChild(tr);
             });
 
-            // 即時同步次表頭與表尾的費用總額
             document.getElementById('expenseTotalAmount').textContent = `NT$ ${totalTwdSum.toLocaleString()}`;
             document.getElementById('expense-header-total').textContent = `NT$ ${totalTwdSum.toLocaleString()}`;
 
@@ -1185,7 +1190,6 @@
             });
         }
 
-        // 費用類別下拉選單：住宿, 機票, 交際費, 伴手禮, 膳雜費, 其他
         function generateExpenseCategoryOptions(selected) {
             const list = ['住宿', '機票', '交際費', '伴手禮', '膳雜費', '其他'];
             return list.map(c => `<option value="${c}" ${selected === c ? 'selected' : ''}>${c}</option>`).join('');
@@ -1578,7 +1582,6 @@
             const wb = XLSX.utils.book_new();
             const meta = appData.itineraryMeta || {};
 
-            // Sheet 1: 行程明細列表
             const itineraryHeader = ["日期", "開始時間", "結束時間", "行程類別", "行程主題", "詳細景點與活動內容說明", "交通路線與乘車指引", "預約狀態及票券", "備註與實用小貼士"];
             const itineraryData = [
                 ["標題:", appData.itineraryTitle],
@@ -1600,7 +1603,6 @@
             const wsItinerary = XLSX.utils.aoa_to_sheet(itineraryData);
             XLSX.utils.book_append_sheet(wb, wsItinerary, "行程明細列表");
 
-            // Sheet 2: 出差報支明細表
             const expMeta = appData.expenseMeta || {};
             const expenseHeader = ["費用日期", "費用類別", "費用項目/說明", "幣別", "外幣金額", "匯率", "折合台幣(TWD)", "備註"];
             const expenseData = [
@@ -1628,7 +1630,6 @@
             const wsExpense = XLSX.utils.aoa_to_sheet(expenseData);
             XLSX.utils.book_append_sheet(wb, wsExpense, "出差報支明細表");
 
-            // Sheet 3: 行李確認表
             const packingHeader = ["類別", "物品名稱", "數量", "行李規定", "已打包", "備註說明"];
             const packingData = [
                 ["標題:", appData.packingTitle],
