@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoTrip - 智能旅行行程規劃器</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries -->
+    <!-- Firebase (Compat v9 for direct browser script execution) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- SheetJS (XLSX) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Sortable.js for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 231, 235, 0.7);
+        }
+        .drag-handle {
+            cursor: grab;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Auth Modal / Overlay -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-brand-500 text-white rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold mb-3 shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-plane-departure"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900" id="authModalTitle">會員登入 / 註冊</h2>
+                <p class="text-xs text-slate-500 mt-1">進入 GoTrip 開始規劃您的完美旅程</p>
+            </div>
+
+            <!-- Tabs for Login / Register -->
+            <div class="flex border-b border-slate-200 mb-6">
+                <button id="tabLoginBtn" class="flex-1 py-2 font-medium text-brand-600 border-b-2 border-brand-600 text-center text-sm">帳號登入</button>
+                <button id="tabRegisterBtn" class="flex-1 py-2 font-medium text-slate-400 border-b-2 border-transparent text-center text-sm hover:text-slate-600">註冊新帳號</button>
+            </div>
+
+            <form id="authForm" class="space-y-4">
+                <div id="displayNameField" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">真實姓名</label>
+                    <input type="text" id="authDisplayName" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="例如：張小明">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">電子郵件 (Email)</label>
+                    <input type="email" id="authEmail" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="user@example.com">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">密碼</label>
+                    <input type="password" id="authPassword" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="••••••••">
+                </div>
+
+                <div id="authError" class="text-xs text-rose-500 hidden bg-rose-50 p-2.5 rounded-lg border border-rose-200"></div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl shadow-lg shadow-brand-500/25 transition duration-200 text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>登入</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Navigation Top Bar -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-lg leading-none">GoTrip 旅行規劃</h1>
+                    <span class="text-[10px] text-slate-400 font-medium">Realtime Travel Planner</span>
+                </div>
+            </div>
+
+            <!-- Sync & Status Info -->
+            <div class="flex items-center space-x-4 bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-200 text-xs">
+                <!-- Status Badge -->
+                <div class="flex items-center space-x-1.5">
+                    <span id="statusIndicator" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    <span id="statusText" class="font-medium text-slate-600">離線</span>
+                </div>
+                <div class="h-3 w-px bg-slate-300"></div>
+                <!-- Last Saved Time -->
+                <div class="text-slate-500 flex items-center gap-1">
+                    <i class="fa-regular fa-clock text-[11px]"></i>
+                    <span id="lastSavedTime">尚未儲存</span>
+                </div>
+            </div>
+
+            <!-- Global Actions & User Profile -->
+            <div class="flex items-center space-x-2">
+                <!-- Export / Import Tools Dropdown or Direct Buttons -->
+                <div class="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200 space-x-1">
+                    <button onclick="triggerExcelImport()" title="匯入 Excel" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-file-import text-emerald-600"></i>
+                        <span class="hidden sm:inline">匯入</span>
+                    </button>
+                    <button onclick="exportToExcel()" title="匯出 Excel" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                        <span class="hidden sm:inline">Excel</span>
+                    </button>
+                    <div class="h-3 w-px bg-slate-300 my-auto"></div>
+                    <button onclick="exportToPNG()" title="輸出高畫質 PNG" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                        <i class="fa-regular fa-image text-blue-600"></i>
+                        <span class="hidden sm:inline">PNG</span>
+                    </button>
+                    <button onclick="exportToPDF()" title="輸出高畫質 PDF" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-file-pdf text-rose-600"></i>
+                        <span class="hidden sm:inline">PDF</span>
+                    </button>
+                </div>
+
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="handleExcelImport(event)">
+
+                <!-- User Info & Logout -->
+                <div id="userSection" class="flex items-center gap-2 pl-2">
+                    <span id="userDisplayName" class="text-xs font-semibold text-slate-700 bg-slate-200/60 px-2.5 py-1.5 rounded-lg border border-slate-200">未登入</span>
+                    <button id="authActionBtn" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs" title="登入/登出">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub-Header Tabs (Page Management) -->
+    <div class="bg-white border-b border-slate-200 px-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Dynamic Tabs List -->
+            <div id="tabsContainer" class="flex items-center space-x-1 overflow-x-auto py-2">
+                <!-- Rendered dynamically -->
+            </div>
+            <!-- Add New Tab Button -->
+            <button onclick="addNewTab()" class="ml-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition flex items-center gap-1 whitespace-nowrap border border-slate-200">
+                <i class="fa-solid fa-plus"></i>
+                <span>新增分頁</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+        
+        <!-- Page 1: 詳細行程表 -->
+        <section id="page-detailedItinerary" class="tab-page hidden space-y-6">
+            <!-- Header Card (Editable) -->
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <div class="mb-4">
+                    <h2 id="itineraryMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'itineraryMainTitle')" class="text-2xl md:text-3xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1.5 rounded-lg transition inline-block">
+                        XXXX 五天四夜深度自由行極致詳細行程表
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-pen text-[10px] mr-1"></i>雙擊標題以編輯內容</p>
+                </div>
+
+                <!-- Sub-header Meta Information Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">旅遊天數</label>
+                        <input type="text" id="meta-duration" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：5天4夜">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">主要目的地</label>
+                        <input type="text" id="meta-destination" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：日本東京">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">同行人數</label>
+                        <input type="text" id="meta-travelers" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：2成人 1兒童">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">航班資訊</label>
+                        <input type="text" id="meta-flights" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：去 CI100 / 回 CI101">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">住宿地點</label>
+                        <input type="text" id="meta-hotel" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：新宿格拉斯麗飯店">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Actions Bar -->
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check text-brand-500"></i> 行程明細列表
+                </span>
+                <button onclick="addItineraryRow()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>新增行程列</span>
+                </button>
+            </div>
+
+            <!-- Printable Export Wrapper -->
+            <div id="itineraryPrintArea" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto p-2">
+                <table class="w-full text-left text-xs border-collapse min-w-[1200px]">
+                    <thead>
+                        <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200">
+                            <th class="p-2.5 w-10 text-center">拖拽</th>
+                            <th class="p-2.5 w-24">天數</th>
+                            <th class="p-2.5 w-20">時段</th>
+                            <th class="p-2.5 w-36">開始時間</th>
+                            <th class="p-2.5 w-36">結束時間</th>
+                            <th class="p-2.5 w-24">行程類別</th>
+                            <th class="p-2.5 w-36">行程主題</th>
+                            <th class="p-2.5 min-w-[180px]">詳細景點與活動內容說明</th>
+                            <th class="p-2.5 min-w-[180px]">交通路線與乘車指引</th>
+                            <th class="p-2.5 w-24">幣別</th>
+                            <th class="p-2.5 w-28">預估花費</th>
+                            <th class="p-2.5 w-32">預約狀態及票券</th>
+                            <th class="p-2.5 min-w-[150px]">備註與實用小貼士</th>
+                            <th class="p-2.5 w-12 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itineraryTableBody" class="divide-y divide-slate-100">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Page 2: 攜帶物品與行李確認 -->
+        <section id="page-packingList" class="tab-page hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <h2 id="packingListMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'packingListMainTitle')" class="text-2xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1.5 rounded-lg transition inline-block">
+                    出國行李清單與航空管制規範勾選確認表
+                </h2>
+                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-pen text-[10px] mr-1"></i>雙擊標題以編輯名稱</p>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                    <i class="fa-solid fa-suitcase-rolling text-brand-500"></i> 行李打包檢查清單
+                </span>
+                <button onclick="addPackingRow()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>新增物品列</span>
+                </button>
+            </div>
+
+            <div id="packingPrintArea" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto p-2">
+                <table class="w-full text-left text-xs border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200">
+                            <th class="p-2.5 w-10 text-center">拖拽</th>
+                            <th class="p-2.5 w-36">類別</th>
+                            <th class="p-2.5 w-48">物品名稱</th>
+                            <th class="p-2.5 w-24">數量</th>
+                            <th class="p-2.5 w-48">行李規定</th>
+                            <th class="p-2.5 w-20 text-center">已打包</th>
+                            <th class="p-2.5 min-w-[200px]">備註說明</th>
+                            <th class="p-2.5 w-12 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packingTableBody" class="divide-y divide-slate-100">
+                        <!-- Dynamic Packing Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Page 3: 旅行分析圖表 -->
+        <section id="page-analytics" class="tab-page hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-900">旅行分析圖表與統計</h2>
+                <p class="text-xs text-slate-500 mt-1">根據詳細行程表數據即時連動計算與視覺化圖表分析</p>
+            </div>
+
+            <!-- Summary KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium">總預估開支 (估算)</span>
+                        <h3 id="analyticsTotalExpense" class="text-2xl font-bold text-brand-600 mt-1">$ 0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium">行程景點與活動數</span>
+                        <h3 id="analyticsTotalItems" class="text-2xl font-bold text-emerald-600 mt-1">0 項</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-map-pin"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium">規劃天數涵蓋</span>
+                        <h3 id="analyticsDaysCount" class="text-2xl font-bold text-indigo-600 mt-1">0 天</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flight Timeline & Route Banner -->
+            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-6 shadow-lg space-y-3">
+                <div class="flex items-center space-x-2 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
+                    <i class="fa-solid fa-plane"></i>
+                    <span>航班去回與路線指引摘要</span>
+                </div>
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-slate-800 pt-3">
+                    <div>
+                        <div class="text-xs text-slate-400">目前設定航班</div>
+                        <div id="analyticsFlightText" class="text-base font-medium mt-0.5">未設定航班資訊</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">主要目的地與住宿</div>
+                        <div id="analyticsHotelText" class="text-base font-medium mt-0.5">未設定目的地與住宿</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Container Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Chart 1: Category Expenses -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-brand-500"></i> 各類別預算開支比例
+                    </h4>
+                    <div class="relative h-64">
+                        <canvas id="categoryExpenseChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Daily Activity Count -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-emerald-500"></i> 每日行程活動強度分布
+                    </h4>
+                    <div class="relative h-64">
+                        <canvas id="dailyActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 4: 旅行照片 -->
+        <section id="page-photos" class="tab-page hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">旅行照片與視覺筆記</h2>
+                    <p class="text-xs text-slate-500 mt-1">無限新增與管理景點參考照片、地圖截圖或美食圖片</p>
+                </div>
+                <button onclick="addNewPhotoCard()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>新增照片欄位</span>
+                </button>
+            </div>
+
+            <!-- Photos Grid Container -->
+            <div id="photosGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Dynamic Photo Cards -->
+            </div>
+        </section>
+
+        <!-- Custom User Added Dynamic Pages Container -->
+        <section id="page-customTab" class="tab-page hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <h2 id="customTabTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'customTabTitle')" class="text-2xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg transition inline-block">
+                    自訂工作表
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">您可以自由新增備忘內容或獨立數據筆記</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <textarea id="customTabTextarea" oninput="saveCurrentData()" class="w-full h-96 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-800 leading-relaxed" placeholder="在這裡寫下您的行程筆記、備忘錄或規劃草稿..."></textarea>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            GoTrip 行程規劃器 &copy; 2026 | Firebase Realtime Database 即時同步版
+        </div>
+    </footer>
+
+    <!-- Photo Lightbox Modal -->
+    <div id="photoLightbox" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden" onclick="closeLightbox()">
+        <div class="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl" onclick="event.stopPropagation()">
+            <img id="lightboxImage" src="" alt="Enlarged Photo" class="w-full h-full object-contain">
+            <button onclick="closeLightbox()" class="absolute top-4 right-4 bg-slate-900/60 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-900 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        // --- 1. FIREBASE CONFIGURATION & INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-Rw8x2ZrssFWn2uwR0pFiXauwsgvFNIE",
+            authDomain: "gotrip-18668.firebaseapp.com",
+            projectId: "gotrip-18668",
+            storageBucket: "gotrip-18668.firebasestorage.app",
+            messagingSenderId: "19303808834",
+            appId: "1:19303808834:web:368c190844d4ddeebb92db",
+            measurementId: "G-5DFT34PVS2",
+            databaseURL: "https://gotrip-18668-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // --- GLOBAL APP STATE ---
+        let currentUser = null;
+        let activeTabId = 'detailedItinerary';
+        let isAuthModeLogin = true;
+
+        // Default Data Structure
+        let appData = {
+            tabs: [
+                { id: 'detailedItinerary', name: '詳細行程表', type: 'system' },
+                { id: 'packingList', name: '攜帶物品與行李確認', type: 'system' },
+                { id: 'analytics', name: '旅行分析圖表', type: 'system' },
+                { id: 'photos', name: '旅行照片', type: 'system' }
+            ],
+            itineraryTitle: 'XXXX 五天四夜深度自由行極致詳細行程表',
+            itineraryMeta: {
+                duration: '',
+                destination: '',
+                travelers: '',
+                flights: '',
+                hotel: ''
+            },
+            itineraryRows: [
+                { id: 'row1', day: 'DAY1', period: '上午', startTime: '09:00', endTime: '12:00', category: '景點', topic: '成田機場抵達與住宿Check-in', detail: '搭乘早班機抵達東京成田機場，購買Skyliner車票前往飯店寄放行李。', transport: 'Skyliner 快線至日暮里轉山手線', currency: '日圓 JPY', cost: 2500, status: '已預約', notes: '記得索取實體車票與實名優惠券' },
+                { id: 'row2', day: 'DAY1', period: '下午', startTime: '13:00', endTime: '17:00', category: '購物', topic: '淺草寺與仲見世通漫步', detail: '品嚐人形燒、參拜淺草寺求籤，欣賞雷門大燈籠。', transport: '地鐵銀座線', currency: '日圓 JPY', cost: 3000, status: '免預約', notes: '人潮較多請妥善保管個人財物' }
+            ],
+            packingTitle: '出國行李清單與航空管制規範勾選確認表',
+            packingRows: [
+                { id: 'p1', category: '證件與檔案', name: '護照 (效期6個月以上)', quantity: 1, rule: '隨身攜帶', packed: true, notes: '正本及影本各準備乙份' },
+                { id: 'p2', category: '電子產品', name: '行動電源 (10000mAh)', quantity: 1, rule: '限隨身攜帶', packed: false, notes: '嚴禁放入托運行李' },
+                { id: 'p3', category: '個人衛生', name: '保濕隨身噴霧 (80ml)', quantity: 1, rule: '限隨身 (單瓶<100ml)', packed: false, notes: '需放入透明夾鏈袋' }
+            ],
+            photos: [
+                { id: 'ph1', title: '淺草寺雷門', tag: '景點地標', url: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600' },
+                { id: 'ph2', title: '東京鐵塔夜景', tag: '夜景推薦', url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' }
+            ],
+            customNotes: {}
+        };
+
+        // --- 2. AUTHENTICATION & SYNC MANAGEMENT ---
+
+        // Monitor Auth State
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('userDisplayName').textContent = user.displayName || user.email;
+                updateSyncStatus('online', '已連線');
+                attachRealtimeSync();
+            } else {
+                currentUser = null;
+                document.getElementById('userDisplayName').textContent = '未登入 (離線瀏覽)';
+                updateSyncStatus('offline', '離線模式');
+                document.getElementById('authModal').classList.remove('hidden');
+            }
+        });
+
+        // Connection Status Monitoring
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true && currentUser) {
+                updateSyncStatus('online', '即時連線中');
+            } else if (currentUser) {
+                updateSyncStatus('offline', '連線中斷');
+            }
+        });
+
+        function updateSyncStatus(state, text) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = text;
+
+            if (state === 'online') {
+                indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+            } else if (state === 'syncing') {
+                indicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-spin';
+            } else {
+                indicator.className = 'w-2.5 h-2.5 rounded-full bg-slate-400';
+            }
+        }
+
+        // Attach Realtime DB Sync
+        function attachRealtimeSync() {
+            if (!currentUser) return;
+            const userDbRef = database.ref(`users/${currentUser.uid}/tripPlannerData`);
+            
+            userDbRef.on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    appData = val;
+                    if (!appData.tabs) appData.tabs = defaultTabs();
+                    renderTabs();
+                    renderActivePageContent();
+                    updateLastSavedDisplay();
+                } else {
+                    // Initialize empty cloud database with current default local data
+                    saveCurrentData();
+                }
+            });
+        }
+
+        function saveCurrentData() {
+            // Collect metadata inputs
+            appData.itineraryMeta = {
+                duration: document.getElementById('meta-duration')?.value || '',
+                destination: document.getElementById('meta-destination')?.value || '',
+                travelers: document.getElementById('meta-travelers')?.value || '',
+                flights: document.getElementById('meta-flights')?.value || '',
+                hotel: document.getElementById('meta-hotel')?.value || ''
+            };
+
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            appData.lastSaved = timestamp;
+
+            if (currentUser) {
+                updateSyncStatus('syncing', '同步儲存中...');
+                database.ref(`users/${currentUser.uid}/tripPlannerData`).set(appData)
+                    .then(() => {
+                        updateSyncStatus('online', '已同步');
+                        updateLastSavedDisplay(timestamp);
+                    })
+                    .catch((err) => {
+                        console.error("Save failed:", err);
+                        updateSyncStatus('offline', '儲存失敗');
+                    });
+            } else {
+                updateLastSavedDisplay(timestamp);
+            }
+
+            if (activeTabId === 'analytics') {
+                renderAnalytics();
+            }
+        }
+
+        function updateLastSavedDisplay(timeStr) {
+            const time = timeStr || appData.lastSaved || '無紀錄';
+            document.getElementById('lastSavedTime').textContent = `上次儲存：${time}`;
+        }
+
+        // --- 3. TAB / WORKSHEET MANAGEMENT ---
+
+        function defaultTabs() {
+            return [
+                { id: 'detailedItinerary', name: '詳細行程表', type: 'system' },
+                { id: 'packingList', name: '攜帶物品與行李確認', type: 'system' },
+                { id: 'analytics', name: '旅行分析圖表', type: 'system' },
+                { id: 'photos', name: '旅行照片', type: 'system' }
+            ];
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabsContainer');
+            container.innerHTML = '';
+
+            appData.tabs.forEach((tab) => {
+                const isActive = tab.id === activeTabId;
+                const tabBtn = document.createElement('div');
+                tabBtn.className = `flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer transition ${
+                    isActive ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`;
+                
+                tabBtn.onclick = () => switchTab(tab.id);
+
+                const titleSpan = document.createElement('span');
+                titleSpan.textContent = tab.name;
+                titleSpan.title = "雙擊重新命名";
+                titleSpan.ondblclick = (e) => {
+                    e.stopPropagation();
+                    renameTabPrompt(tab.id);
+                };
+
+                tabBtn.appendChild(titleSpan);
+
+                // Add delete button for custom dynamic tabs
+                if (tab.type === 'custom') {
+                    const delBtn = document.createElement('i');
+                    delBtn.className = `fa-solid fa-xmark text-[11px] ml-1 p-0.5 rounded-full hover:bg-black/20 ${isActive ? 'text-white' : 'text-slate-400'}`;
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteTab(tab.id);
+                    };
+                    tabBtn.appendChild(delBtn);
+                }
+
+                container.appendChild(tabBtn);
+            });
+        }
+
+        function switchTab(tabId) {
+            activeTabId = tabId;
+            renderTabs();
+            renderActivePageContent();
+        }
+
+        function addNewTab() {
+            const newId = 'custom_' + Date.now();
+            const tabName = prompt('請輸入新分頁/工作表名稱：', '新工作表');
+            if (tabName && tabName.trim() !== '') {
+                appData.tabs.push({ id: newId, name: tabName.trim(), type: 'custom' });
+                appData.customNotes[newId] = '';
+                activeTabId = newId;
+                saveCurrentData();
+                renderTabs();
+                renderActivePageContent();
+            }
+        }
+
+        function renameTabPrompt(tabId) {
+            const tab = appData.tabs.find(t => t.id === tabId);
+            if (!tab) return;
+            const newName = prompt('重命名分頁：', tab.name);
+            if (newName && newName.trim() !== '') {
+                tab.name = newName.trim();
+                saveCurrentData();
+                renderTabs();
+            }
+        }
+
+        function deleteTab(tabId) {
+            if (confirm('確定要刪除此工作表嗎？內含數據將無法復原。')) {
+                appData.tabs = appData.tabs.filter(t => t.id !== tabId);
+                delete appData.customNotes[tabId];
+                activeTabId = appData.tabs[0].id;
+                saveCurrentData();
+                renderTabs();
+                renderActivePageContent();
+            }
+        }
+
+        function renderActivePageContent() {
+            // Hide all pages
+            document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
+
+            if (activeTabId === 'detailedItinerary') {
+                document.getElementById('page-detailedItinerary').classList.remove('hidden');
+                renderItineraryPage();
+            } else if (activeTabId === 'packingList') {
+                document.getElementById('page-packingList').classList.remove('hidden');
+                renderPackingPage();
+            } else if (activeTabId === 'analytics') {
+                document.getElementById('page-analytics').classList.remove('hidden');
+                renderAnalytics();
+            } else if (activeTabId === 'photos') {
+                document.getElementById('page-photos').classList.remove('hidden');
+                renderPhotosPage();
+            } else {
+                // Render dynamic custom tab page
+                const customPage = document.getElementById('page-customTab');
+                customPage.classList.remove('hidden');
+                const tabObj = appData.tabs.find(t => t.id === activeTabId);
+                if (tabObj) {
+                    document.getElementById('customTabTitle').textContent = tabObj.name;
+                }
+                document.getElementById('customTabTextarea').value = appData.customNotes[activeTabId] || '';
+                document.getElementById('customTabTextarea').oninput = (e) => {
+                    appData.customNotes[activeTabId] = e.target.value;
+                    saveCurrentData();
+                };
+            }
+        }
+
+        // --- 4. PAGE 1: DETAILED ITINERARY LOGIC ---
+
+        function renderItineraryPage() {
+            document.getElementById('itineraryMainTitle').textContent = appData.itineraryTitle || 'XXXX 五天四夜深度自由行極致詳細行程表';
+            
+            // Fill Meta inputs
+            document.getElementById('meta-duration').value = appData.itineraryMeta?.duration || '';
+            document.getElementById('meta-destination').value = appData.itineraryMeta?.destination || '';
+            document.getElementById('meta-travelers').value = appData.itineraryMeta?.travelers || '';
+            document.getElementById('meta-flights').value = appData.itineraryMeta?.flights || '';
+            document.getElementById('meta-hotel').value = appData.itineraryMeta?.hotel || '';
+
+            const tbody = document.getElementById('itineraryTableBody');
+            tbody.innerHTML = '';
+
+            appData.itineraryRows.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', row.id);
+                tr.className = 'hover:bg-slate-50/80 transition';
+
+                tr.innerHTML = `
+                    <td class="p-2.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td class="p-2">
+                        <select onchange="updateItineraryField('${row.id}', 'day', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 focus:ring-1 focus:ring-brand-500">
+                            ${generateDayOptions(row.day)}
+                        </select>
+                    </td>
+                    <td class="p-2">
+                        <select onchange="updateItineraryField('${row.id}', 'period', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 focus:ring-1 focus:ring-brand-500">
+                            <option value="上午" ${row.period === '上午' ? 'selected' : ''}>上午</option>
+                            <option value="下午" ${row.period === '下午' ? 'selected' : ''}>下午</option>
+                            <option value="晚上" ${row.period === '晚上' ? 'selected' : ''}>晚上</option>
+                        </select>
+                    </td>
+                    <td class="p-2"><input type="time" value="${row.startTime || ''}" onchange="updateItineraryField('${row.id}', 'startTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
+                    <td class="p-2"><input type="time" value="${row.endTime || ''}" onchange="updateItineraryField('${row.id}', 'endTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
+                    <td class="p-2">
+                        <select onchange="updateItineraryField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 focus:ring-1 focus:ring-brand-500">
+                            ${generateCategoryOptions(row.category)}
+                        </select>
+                    </td>
+                    <td class="p-2"><input type="text" value="${escapeHtml(row.topic || '')}" oninput="updateItineraryField('${row.id}', 'topic', this.value)" placeholder="行程主題" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
+                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'detail', this.value)" placeholder="景點細節說明" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 h-12 resize-y">${escapeHtml(row.detail || '')}</textarea></td>
+                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'transport', this.value)" placeholder="乘車路線指引" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 h-12 resize-y">${escapeHtml(row.transport || '')}</textarea></td>
+                    <td class="p-2">
+                        <select onchange="updateItineraryField('${row.id}', 'currency', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                            ${generateCurrencyOptions(row.currency)}
+                        </select>
+                    </td>
+                    <td class="p-2"><input type="number" value="${row.cost || 0}" oninput="updateItineraryField('${row.id}', 'cost', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 text-right font-mono"></td>
+                    <td class="p-2"><input type="text" value="${escapeHtml(row.status || '')}" oninput="updateItineraryField('${row.id}', 'status', this.value)" placeholder="預約狀態/票號" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
+                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'notes', this.value)" placeholder="小貼士/備註" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 h-12 resize-y">${escapeHtml(row.notes || '')}</textarea></td>
+                    <td class="p-2 text-center">
+                        <button onclick="deleteItineraryRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Re-initialize Sortable drag-and-drop
+            new Sortable(tbody, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: function () {
+                    const newOrder = [];
+                    tbody.querySelectorAll('tr').forEach(tr => {
+                        const id = tr.getAttribute('data-id');
+                        const item = appData.itineraryRows.find(r => r.id === id);
+                        if (item) newOrder.push(item);
+                    });
+                    appData.itineraryRows = newOrder;
+                    saveCurrentData();
+                }
+            });
+        }
+
+        function generateDayOptions(selectedDay) {
+            let options = '';
+            for (let i = 1; i <= 15; i++) {
+                const dayStr = `DAY${i}`;
+                options += `<option value="${dayStr}" ${selectedDay === dayStr ? 'selected' : ''}>DAY ${i}</option>`;
+            }
+            return options;
+        }
+
+        function generateCategoryOptions(selectedCat) {
+            const categories = ['景點', '美食', '交通', '住宿', '購物', '體驗', '其它'];
+            return categories.map(cat => `<option value="${cat}" ${selectedCat === cat ? 'selected' : ''}>${cat}</option>`).join('');
+        }
+
+        function generateCurrencyOptions(selectedCurr) {
+            const currencies = ['日圓 JPY', '台幣 TWD', '泰銖 THB', '越南盾 VND', '美金 USD', '歐元 EUR', '韓元 KRW'];
+            return currencies.map(c => `<option value="${c}" ${selectedCurr === c ? 'selected' : ''}>${c}</option>`).join('');
+        }
+
+        function addItineraryRow() {
+            const newRow = {
+                id: 'row_' + Date.now(),
+                day: 'DAY1',
+                period: '上午',
+                startTime: '09:00',
+                endTime: '10:00',
+                category: '景點',
+                topic: '',
+                detail: '',
+                transport: '',
+                currency: '日圓 JPY',
+                cost: 0,
+                status: '',
+                notes: ''
+            };
+            appData.itineraryRows.push(newRow);
+            saveCurrentData();
+            renderItineraryPage();
+        }
+
+        function updateItineraryField(id, field, value) {
+            const row = appData.itineraryRows.find(r => r.id === id);
+            if (row) {
+                row[field] = value;
+                saveCurrentData();
+            }
+        }
+
+        function deleteItineraryRow(id) {
+            appData.itineraryRows = appData.itineraryRows.filter(r => r.id !== id);
+            saveCurrentData();
+            renderItineraryPage();
+        }
+
+        // --- 5. PAGE 2: PACKING LIST LOGIC ---
+
+        function renderPackingPage() {
+            document.getElementById('packingListMainTitle').textContent = appData.packingTitle || '出國行李清單與航空管制規範勾選確認表';
+            const tbody = document.getElementById('packingTableBody');
+            tbody.innerHTML = '';
+
+            appData.packingRows.forEach((row) => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', row.id);
+                tr.className = `hover:bg-slate-50 transition ${row.packed ? 'bg-emerald-50/40' : ''}`;
+
+                tr.innerHTML = `
+                    <td class="p-2.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td class="p-2">
+                        <select onchange="updatePackingField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                            ${generatePackingCategoryOptions(row.category)}
+                        </select>
+                    </td>
+                    <td class="p-2"><input type="text" value="${escapeHtml(row.name || '')}" oninput="updatePackingField('${row.id}', 'name', this.value)" placeholder="物品名稱" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
+                    <td class="p-2">
+                        <select onchange="updatePackingField('${row.id}', 'quantity', parseInt(this.value,10))" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 font-mono">
+                            ${generateQuantityOptions(row.quantity)}
+                        </select>
+                    </td>
+                    <td class="p-2">
+                        <select onchange="updatePackingField('${row.id}', 'rule', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 text-slate-700">
+                            ${generateBaggageRuleOptions(row.rule)}
+                        </select>
+                    </td>
+                    <td class="p-2 text-center">
+                        <input type="checkbox" ${row.packed ? 'checked' : ''} onchange="updatePackingField('${row.id}', 'packed', this.checked)" class="w-4 h-4 text-brand-600 accent-brand-600 rounded cursor-pointer">
+                    </td>
+                    <td class="p-2"><input type="text" value="${escapeHtml(row.notes || '')}" oninput="updatePackingField('${row.id}', 'notes', this.value)" placeholder="備註說明" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
+                    <td class="p-2 text-center">
+                        <button onclick="deletePackingRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            new Sortable(tbody, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: function () {
+                    const newOrder = [];
+                    tbody.querySelectorAll('tr').forEach(tr => {
+                        const id = tr.getAttribute('data-id');
+                        const item = appData.packingRows.find(r => r.id === id);
+                        if (item) newOrder.push(item);
+                    });
+                    appData.packingRows = newOrder;
+                    saveCurrentData();
+                }
+            });
+        }
+
+        function generatePackingCategoryOptions(selectedCat) {
+            const categories = ['證件與檔案', '電子產品', '衣物穿著', '個人衛生', '藥品保健', '其他雜物'];
+            return categories.map(c => `<option value="${c}" ${selectedCat === c ? 'selected' : ''}>${c}</option>`).join('');
+        }
+
+        function generateQuantityOptions(selectedQty) {
+            let options = '';
+            for (let i = 0; i <= 15; i++) {
+                options += `<option value="${i}" ${selectedQty === i ? 'selected' : ''}>${i}</option>`;
+            }
+            return options;
+        }
+
+        function generateBaggageRuleOptions(selectedRule) {
+            const rules = [
+                '隨身攜帶',
+                '限隨身攜帶',
+                '可託運或隨身',
+                '可託運',
+                '隨身攜帶/穿著',
+                '穿著',
+                '限隨身 (單瓶<100ml)'
+            ];
+            return rules.map(r => `<option value="${r}" ${selectedRule === r ? 'selected' : ''}>${r}</option>`).join('');
+        }
+
+        function addPackingRow() {
+            const newRow = {
+                id: 'p_' + Date.now(),
+                category: '個人衛生',
+                name: '',
+                quantity: 1,
+                rule: '可託運或隨身',
+                packed: false,
+                notes: ''
+            };
+            appData.packingRows.push(newRow);
+            saveCurrentData();
+            renderPackingPage();
+        }
+
+        function updatePackingField(id, field, value) {
+            const row = appData.packingRows.find(r => r.id === id);
+            if (row) {
+                row[field] = value;
+                saveCurrentData();
+                if (field === 'packed') renderPackingPage();
+            }
+        }
+
+        function deletePackingRow(id) {
+            appData.packingRows = appData.packingRows.filter(r => r.id !== id);
+            saveCurrentData();
+            renderPackingPage();
+        }
+
+        // --- 6. PAGE 3: ANALYTICS & CHARTS LOGIC ---
+
+        let categoryExpenseChart = null;
+        let dailyActivityChart = null;
+
+        function renderAnalytics() {
+            const rows = appData.itineraryRows || [];
+
+            // Calculate Metrics
+            let totalCost = 0;
+            const categoryCostMap = {};
+            const dayActivityMap = {};
+
+            rows.forEach(r => {
+                const cost = parseFloat(r.cost) || 0;
+                totalCost += cost;
+
+                const cat = r.category || '其它';
+                categoryCostMap[cat] = (categoryCostMap[cat] || 0) + cost;
+
+                const day = r.day || 'DAY1';
+                dayActivityMap[day] = (dayActivityMap[day] || 0) + 1;
+            });
+
+            const uniqueDays = Object.keys(dayActivityMap).length;
+
+            document.getElementById('analyticsTotalExpense').textContent = `$ ${totalCost.toLocaleString()}`;
+            document.getElementById('analyticsTotalItems').textContent = `${rows.length} 項`;
+            document.getElementById('analyticsDaysCount').textContent = `${uniqueDays} 天`;
+
+            document.getElementById('analyticsFlightText').textContent = appData.itineraryMeta?.flights || '未填寫航班資訊';
+            document.getElementById('analyticsHotelText').textContent = `${appData.itineraryMeta?.destination || '未填寫'} - ${appData.itineraryMeta?.hotel || '未填寫'}`;
+
+            // Render Chart 1: Category Expenses Pie Chart
+            const catCtx = document.getElementById('categoryExpenseChart').getContext('2d');
+            if (categoryExpenseChart) categoryExpenseChart.destroy();
+
+            const catLabels = Object.keys(categoryCostMap);
+            const catData = Object.values(categoryCostMap);
+
+            categoryExpenseChart = new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels.length ? catLabels : ['無資料'],
+                    datasets: [{
+                        data: catData.length ? catData : [1],
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Render Chart 2: Daily Activity Bar Chart
+            const dailyCtx = document.getElementById('dailyActivityChart').getContext('2d');
+            if (dailyActivityChart) dailyActivityChart.destroy();
+
+            const sortedDays = Object.keys(dayActivityMap).sort((a,b) => {
+                const numA = parseInt(a.replace('DAY','')) || 0;
+                const numB = parseInt(b.replace('DAY','')) || 0;
+                return numA - numB;
+            });
+
+            dailyActivityChart = new Chart(dailyCtx, {
+                type: 'bar',
+                data: {
+                    labels: sortedDays.length ? sortedDays : ['DAY1'],
+                    datasets: [{
+                        label: '活動與景點個數',
+                        data: sortedDays.map(d => dayActivityMap[d]),
+                        backgroundColor: '#10b981',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        // --- 7. PAGE 4: TRAVEL PHOTOS LOGIC ---
+
+        function renderPhotosPage() {
+            const container = document.getElementById('photosGrid');
+            container.innerHTML = '';
+
+            appData.photos.forEach((ph) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm flex flex-col group';
+
+                card.innerHTML = `
+                    <div class="relative h-48 bg-slate-100 overflow-hidden cursor-pointer" onclick="openLightbox('${escapeHtml(ph.url)}')">
+                        <img src="${escapeHtml(ph.url)}" alt="${escapeHtml(ph.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=無圖片';">
+                        <span class="absolute top-2 left-2 bg-slate-900/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">${escapeHtml(ph.tag || '相片')}</span>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                            <input type="text" value="${escapeHtml(ph.title)}" oninput="updatePhotoField('${ph.id}', 'title', this.value)" placeholder="相片標題" class="w-full font-bold text-slate-800 text-sm border-b border-transparent focus:border-brand-500 focus:outline-none py-0.5">
+                            <input type="text" value="${escapeHtml(ph.tag)}" oninput="updatePhotoField('${ph.id}', 'tag', this.value)" placeholder="標籤 (例如：景點)" class="w-full text-xs text-slate-400 border-b border-transparent focus:border-brand-500 focus:outline-none py-0.5 mt-1">
+                        </div>
+                        <div class="space-y-2 pt-2 border-t border-slate-100">
+                            <input type="text" value="${escapeHtml(ph.url)}" oninput="updatePhotoField('${ph.id}', 'url', this.value)" placeholder="圖片網址 URL" class="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                            <button onclick="deletePhotoCard('${ph.id}')" class="w-full py-1.5 text-xs text-rose-500 hover:bg-rose-50 rounded-lg transition font-medium flex items-center justify-center gap-1">
+                                <i class="fa-regular fa-trash-can"></i> 刪除相片
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addNewPhotoCard() {
+            const newPhoto = {
+                id: 'ph_' + Date.now(),
+                title: '全新景點相片',
+                tag: '自由行',
+                url: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600'
+            };
+            appData.photos.push(newPhoto);
+            saveCurrentData();
+            renderPhotosPage();
+        }
+
+        function updatePhotoField(id, field, value) {
+            const ph = appData.photos.find(p => p.id === id);
+            if (ph) {
+                ph[field] = value;
+                saveCurrentData();
+            }
+        }
+
+        function deletePhotoCard(id) {
+            appData.photos = appData.photos.filter(p => p.id !== id);
+            saveCurrentData();
+            renderPhotosPage();
+        }
+
+        function openLightbox(url) {
+            document.getElementById('lightboxImage').src = url;
+            document.getElementById('photoLightbox').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('photoLightbox').classList.add('hidden');
+        }
+
+        // --- 8. GLOBAL EDITABLE TITLE HELPER ---
+
+        function makeEditable(element, fieldKey) {
+            const currentText = element.textContent.trim();
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.className = 'text-2xl font-bold text-slate-900 border-b-2 border-brand-500 focus:outline-none bg-transparent w-full';
+
+            input.onblur = function () {
+                const updated = input.value.trim() || currentText;
+                element.textContent = updated;
+                if (fieldKey === 'itineraryMainTitle') appData.itineraryTitle = updated;
+                if (fieldKey === 'packingListMainTitle') appData.packingTitle = updated;
+                if (fieldKey === 'customTabTitle') {
+                    const tabObj = appData.tabs.find(t => t.id === activeTabId);
+                    if (tabObj) tabObj.name = updated;
+                    renderTabs();
+                }
+                saveCurrentData();
+            };
+
+            input.onkeydown = function (e) {
+                if (e.key === 'Enter') input.blur();
+            };
+
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+        }
+
+        // --- 9. IMPORT / EXPORT TOOLS (EXCEL, PNG, PDF) ---
+
+        // Excel Export (SheetJS)
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+
+            // 1. Detailed Itinerary Sheet
+            const itineraryHeader = ["天數", "時段", "開始時間", "結束時間", "行程類別", "行程主題", "詳細景點與活動內容說明", "交通路線與乘車指引", "幣別", "預估花費", "預約狀態及票券", "備註與實用小貼士"];
+            const itineraryData = [
+                ["標題:", appData.itineraryTitle],
+                ["旅遊天數:", appData.itineraryMeta?.duration || '', "目的地:", appData.itineraryMeta?.destination || '', "同行人數:", appData.itineraryMeta?.travelers || ''],
+                ["航班資訊:", appData.itineraryMeta?.flights || '', "住宿地點:", appData.itineraryMeta?.hotel || ''],
+                [],
+                itineraryHeader
+            ];
+
+            appData.itineraryRows.forEach(r => {
+                itineraryData.push([
+                    r.day, r.period, r.startTime, r.endTime, r.category, r.topic, r.detail, r.transport, r.currency, Number(r.cost)||0, r.status, r.notes
+                ]);
+            });
+
+            const wsItinerary = XLSX.utils.aoa_to_sheet(itineraryData);
+            XLSX.utils.book_append_sheet(wb, wsItinerary, "詳細行程表");
+
+            // 2. Packing List Sheet
+            const packingHeader = ["類別", "物品名稱", "數量", "行李規定", "已打包", "備註說明"];
+            const packingData = [
+                ["標題:", appData.packingTitle],
+                [],
+                packingHeader
+            ];
+
+            appData.packingRows.forEach(r => {
+                packingData.push([
+                    r.category, r.name, Number(r.quantity)||0, r.rule, r.packed ? "是" : "否", r.notes
+                ]);
+            });
+
+            const wsPacking = XLSX.utils.aoa_to_sheet(packingData);
+            XLSX.utils.book_append_sheet(wb, wsPacking, "攜帶物品與行李確認");
+
+            // Write Excel File
+            XLSX.writeFile(wb, `GoTrip_行程規劃表_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        // Excel Import
+        function triggerExcelImport() {
+            document.getElementById('excelFileInput').click();
+        }
+
+        function handleExcelImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    // Import Detailed Itinerary
+                    if (workbook.SheetNames.includes("詳細行程表")) {
+                        const ws = workbook.Sheets["詳細行程表"];
+                        const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                        
+                        // Parse rows after header
+                        const rows = [];
+                        let isDataSection = false;
+                        for (let i = 0; i < json.length; i++) {
+                            const row = json[i];
+                            if (row[0] === "天數") {
+                                isDataSection = true;
+                                continue;
+                            }
+                            if (isDataSection && row.length > 0) {
+                                rows.push({
+                                    id: 'row_' + Date.now() + '_' + i,
+                                    day: row[0] || 'DAY1',
+                                    period: row[1] || '上午',
+                                    startTime: row[2] || '',
+                                    endTime: row[3] || '',
+                                    category: row[4] || '景點',
+                                    topic: row[5] || '',
+                                    detail: row[6] || '',
+                                    transport: row[7] || '',
+                                    currency: row[8] || '日圓 JPY',
+                                    cost: Number(row[9]) || 0,
+                                    status: row[10] || '',
+                                    notes: row[11] || ''
+                                });
+                            }
+                        }
+                        if (rows.length > 0) appData.itineraryRows = rows;
+                    }
+
+                    // Import Packing List
+                    if (workbook.SheetNames.includes("攜帶物品與行李確認")) {
+                        const ws = workbook.Sheets["攜帶物品與行李確認"];
+                        const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+                        const pRows = [];
+                        let isDataSection = false;
+                        for (let i = 0; i < json.length; i++) {
+                            const row = json[i];
+                            if (row[0] === "類別") {
+                                isDataSection = true;
+                                continue;
+                            }
+                            if (isDataSection && row.length > 0) {
+                                pRows.push({
+                                    id: 'p_' + Date.now() + '_' + i,
+                                    category: row[0] || '其他雜物',
+                                    name: row[1] || '',
+                                    quantity: parseInt(row[2], 10) || 1, // Forced Numeric
+                                    rule: row[3] || '可託運或隨身',
+                                    packed: row[4] === "是" || row[4] === true,
+                                    notes: row[5] || ''
+                                });
+                            }
+                        }
+                        if (pRows.length > 0) appData.packingRows = pRows;
+                    }
+
+                    saveCurrentData();
+                    renderActivePageContent();
+                    alert('Excel 資料匯入成功！');
+                } catch (err) {
+                    alert('Excel 匯入失敗，請確認檔案格式正確。');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Export active area to PNG
+        function exportToPNG() {
+            let elementToCapture;
+            if (activeTabId === 'detailedItinerary') elementToCapture = document.getElementById('itineraryPrintArea');
+            else if (activeTabId === 'packingList') elementToCapture = document.getElementById('packingPrintArea');
+            else elementToCapture = document.querySelector('main');
+
+            html2canvas(elementToCapture, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `GoTrip_${activeTabId}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Export active area to PDF
+        function exportToPDF() {
+            let elementToCapture;
+            if (activeTabId === 'detailedItinerary') elementToCapture = document.getElementById('itineraryPrintArea');
+            else if (activeTabId === 'packingList') elementToCapture = document.getElementById('packingPrintArea');
+            else elementToCapture = document.querySelector('main');
+
+            html2canvas(elementToCapture, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`GoTrip_${activeTabId}_${Date.now()}.pdf`);
+            });
+        }
+
+        // Helper Utility
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // --- 10. AUTH MODAL DOM EVENT HANDLERS ---
+        document.getElementById('tabLoginBtn').onclick = () => {
+            isAuthModeLogin = true;
+            document.getElementById('tabLoginBtn').className = "flex-1 py-2 font-medium text-brand-600 border-b-2 border-brand-600 text-center text-sm";
+            document.getElementById('tabRegisterBtn').className = "flex-1 py-2 font-medium text-slate-400 border-b-2 border-transparent text-center text-sm hover:text-slate-600";
+            document.getElementById('authModalTitle').textContent = "會員登入";
+            document.getElementById('displayNameField').classList.add('hidden');
+            document.getElementById('authSubmitBtn').querySelector('span').textContent = "登入";
+        };
+
+        document.getElementById('tabRegisterBtn').onclick = () => {
+            isAuthModeLogin = false;
+            document.getElementById('tabRegisterBtn').className = "flex-1 py-2 font-medium text-brand-600 border-b-2 border-brand-600 text-center text-sm";
+            document.getElementById('tabLoginBtn').className = "flex-1 py-2 font-medium text-slate-400 border-b-2 border-transparent text-center text-sm hover:text-slate-600";
+            document.getElementById('authModalTitle').textContent = "註冊新帳號";
+            document.getElementById('displayNameField').classList.remove('hidden');
+            document.getElementById('authSubmitBtn').querySelector('span').textContent = "註冊並登入";
+        };
+
+        document.getElementById('authForm').onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authDisplayName').value;
+            const errDiv = document.getElementById('authError');
+            errDiv.classList.add('hidden');
+
+            if (isAuthModeLogin) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch(err => {
+                        errDiv.textContent = `登入失敗: ${err.message}`;
+                        errDiv.classList.remove('hidden');
+                    });
+            } else {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((cred) => {
+                        return cred.user.updateProfile({ displayName: name || email.split('@')[0] });
+                    })
+                    .then(() => {
+                        location.reload();
+                    })
+                    .catch(err => {
+                        errDiv.textContent = `註冊失敗: ${err.message}`;
+                        errDiv.classList.remove('hidden');
+                    });
+            }
+        };
+
+        document.getElementById('authActionBtn').onclick = () => {
+            if (currentUser) {
+                if (confirm('確定要登出系統嗎？')) {
+                    auth.signOut();
+                }
+            } else {
+                document.getElementById('authModal').classList.remove('hidden');
+            }
+        };
+
+        // Initialize App on Window Load
+        window.onload = function () {
+            renderTabs();
+            renderActivePageContent();
+        };
+    </script>
+</body>
+</html>
