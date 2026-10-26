@@ -59,6 +59,25 @@
         .drag-handle:active {
             cursor: grabbing;
         }
+        /* Double Row Height Styling for Detailed Itinerary Table */
+        .double-height-row td {
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+        .double-height-row input[type="text"],
+        .double-height-row input[type="date"],
+        .double-height-row input[type="time"],
+        .double-height-row select {
+            min-height: 2.75rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .double-height-row textarea {
+            min-height: 5rem !important;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -153,7 +172,7 @@
 
             <!-- Global Actions & User Profile -->
             <div class="flex items-center space-x-2">
-                <!-- Export / Import Tools Dropdown or Direct Buttons -->
+                <!-- Export / Import Tools -->
                 <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 space-x-1">
                     <button onclick="triggerExcelImport()" title="匯入 Excel" class="px-2 py-1 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
                         <i class="fa-solid fa-file-import text-emerald-600"></i>
@@ -205,9 +224,9 @@
     <!-- Main Dynamic Content Container -->
     <main class="flex-1 w-full mx-auto p-3 md:p-4 space-y-4">
         
-        <!-- Page 1: 詳細行程表 -->
+        <!-- Page 1: 行程明細列表 (列高X2) -->
         <section id="page-detailedItinerary" class="tab-page hidden space-y-3">
-            <!-- Compact Header Card (Editable) -->
+            <!-- Compact Header Card -->
             <div class="glass-card rounded-xl p-3 shadow-sm border border-slate-200/80">
                 <div class="flex items-center justify-between gap-2 mb-2">
                     <div>
@@ -218,7 +237,7 @@
                     </div>
                 </div>
 
-                <!-- Sub-header Meta Information Grid (Compact) -->
+                <!-- Sub-header Meta Information Grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50/80 p-2 rounded-lg border border-slate-200/80 text-xs mb-2">
                     <div class="flex items-center gap-1.5">
                         <label class="font-semibold text-slate-500 text-[11px] whitespace-nowrap">天數:</label>
@@ -238,7 +257,7 @@
                     </div>
                 </div>
 
-                <!-- Flight Information Grid (Super Compact Outbound & Inbound) -->
+                <!-- Flight Information Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 text-xs">
                     <!-- Outbound -->
                     <div class="bg-indigo-50/40 p-2 rounded-lg border border-indigo-100/80 flex flex-wrap items-center gap-1.5">
@@ -271,7 +290,7 @@
             <!-- Table Actions Bar -->
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-check text-brand-500"></i> 行程明細列表
+                    <i class="fa-solid fa-list-check text-brand-500"></i> 行程明細列表 (雙倍列高加寬檢視)
                 </span>
                 <button onclick="addItineraryRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
                     <i class="fa-solid fa-plus text-[10px]"></i>
@@ -279,35 +298,129 @@
                 </button>
             </div>
 
-            <!-- Printable Export Wrapper (Full Width) -->
+            <!-- Printable Export Wrapper -->
             <div id="itineraryPrintArea" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto p-1.5">
-                <table class="w-full text-left text-xs border-collapse min-w-[1200px]">
+                <table class="w-full text-left text-xs border-collapse min-w-[1000px]">
                     <thead>
-                        <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200">
+                        <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200 h-10">
                             <th class="p-2 w-8 text-center">拖拽</th>
-                            <th class="p-2 w-32">日期</th>
-                            <th class="p-2 w-20">時段</th>
+                            <th class="p-2 w-36">日期</th>
                             <th class="p-2 w-28">開始時間</th>
                             <th class="p-2 w-28">結束時間</th>
-                            <th class="p-2 w-24">行程類別</th>
-                            <th class="p-2 w-36">行程主題</th>
-                            <th class="p-2 min-w-[180px]">詳細景點與活動內容說明</th>
-                            <th class="p-2 min-w-[180px]">交通路線與乘車指引</th>
-                            <th class="p-2 w-24">幣別</th>
-                            <th class="p-2 w-28">預估花費</th>
-                            <th class="p-2 w-32">預約狀態及票券</th>
-                            <th class="p-2 min-w-[150px]">備註與實用小貼士</th>
+                            <th class="p-2 w-28">行程類別</th>
+                            <th class="p-2 w-44">行程主題</th>
+                            <th class="p-2 min-w-[220px]">詳細景點與活動內容說明</th>
+                            <th class="p-2 min-w-[220px]">交通路線與乘車指引</th>
+                            <th class="p-2 w-36">預約狀態及票券</th>
+                            <th class="p-2 min-w-[200px]">備註與實用小貼士</th>
                             <th class="p-2 w-10 text-center">操作</th>
                         </tr>
                     </thead>
                     <tbody id="itineraryTableBody" class="divide-y divide-slate-100">
-                        <!-- Dynamic Rows -->
+                        <!-- Dynamic Double-Height Rows -->
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Page 2: 攜帶物品與行李確認 -->
+        <!-- Page 2: 出差報支明細表 (全新次表頭與自動幣別匯率抓取) -->
+        <section id="page-expenseReport" class="tab-page hidden space-y-3">
+            <div class="glass-card rounded-xl p-3 shadow-sm border border-slate-200/80 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <h2 id="expenseReportMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'expenseReportMainTitle')" class="text-lg md:text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 px-2 py-0.5 rounded-lg transition inline-block">
+                            出差報支明細表
+                        </h2>
+                        <span class="text-[10px] text-slate-400 ml-2"><i class="fa-solid fa-pen text-[9px] mr-0.5"></i>雙擊編輯標題</span>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Sub-header Meta Information Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 bg-slate-50/90 p-2.5 rounded-xl border border-slate-200/80 text-xs">
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">填表日期:</label>
+                        <input type="date" id="expense-fill-date" onchange="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800 text-xs">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">員工姓名:</label>
+                        <input type="text" id="expense-emp-name" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="姓名">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">員工工號:</label>
+                        <input type="text" id="expense-emp-id" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="工號">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">所屬部門:</label>
+                        <input type="text" id="expense-dept" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="部門">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">職稱:</label>
+                        <input type="text" id="expense-title" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="職稱">
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">出差地點:</label>
+                        <input type="text" id="expense-location" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="地點 (如：東京/熊本)">
+                    </div>
+                    <div class="flex items-center gap-1.5 sm:col-span-2">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">出差事由:</label>
+                        <input type="text" id="expense-reason" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="出差事由/專案名稱">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-600 text-[11px] whitespace-nowrap">出差期間:</label>
+                        <input type="text" id="expense-period" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 text-xs" placeholder="如：10/26~10/31">
+                    </div>
+                    <!-- Auto-Calculated Total Expense Field -->
+                    <div class="flex items-center gap-1.5 bg-brand-50/80 px-2 py-0.5 rounded border border-brand-200">
+                        <label class="font-bold text-brand-800 text-[11px] whitespace-nowrap">費用總額:</label>
+                        <span id="expense-header-total" class="font-bold font-mono text-brand-700 text-xs truncate">NT$ 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Actions Bar -->
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                    <i class="fa-solid fa-receipt text-brand-500"></i> 出差費用報支項目明細列表
+                </span>
+                <button onclick="addExpenseRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>新增報支列</span>
+                </button>
+            </div>
+
+            <!-- Expense Report Print Area -->
+            <div id="expensePrintArea" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto p-1.5">
+                <table class="w-full text-left text-xs border-collapse min-w-[950px]">
+                    <thead>
+                        <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200 h-9">
+                            <th class="p-2 w-8 text-center">拖拽</th>
+                            <th class="p-2 w-32">費用日期</th>
+                            <th class="p-2 w-28">費用類別</th>
+                            <th class="p-2 min-w-[200px]">費用項目 / 說明</th>
+                            <th class="p-2 w-28">幣別</th>
+                            <th class="p-2 w-28">外幣金額</th>
+                            <th class="p-2 w-28">匯率 (自動/手動)</th>
+                            <th class="p-2 w-32">折合台幣 (TWD)</th>
+                            <th class="p-2 min-w-[180px]">備註</th>
+                            <th class="p-2 w-10 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTableBody" class="divide-y divide-slate-100">
+                        <!-- Dynamic Expense Rows -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-slate-50 font-bold text-slate-800 border-t-2 border-slate-200 h-10">
+                            <td colspan="7" class="p-2.5 text-right">費用總額自動加總 (TWD)：</td>
+                            <td id="expenseTotalAmount" class="p-2.5 font-mono text-brand-600 text-sm">NT$ 0</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- Page 3: 攜帶物品與行李確認 -->
         <section id="page-packingList" class="tab-page hidden space-y-4">
             <div class="glass-card rounded-2xl p-4 shadow-sm">
                 <h2 id="packingListMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'packingListMainTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1 rounded-lg transition inline-block">
@@ -347,7 +460,7 @@
             </div>
         </section>
 
-        <!-- Page 3: 旅行分析圖表 -->
+        <!-- Page 4: 旅行分析圖表 -->
         <section id="page-analytics" class="tab-page hidden space-y-4">
             <div class="glass-card rounded-2xl p-4 shadow-sm">
                 <h2 class="text-xl font-bold text-slate-900">旅行分析圖表與統計</h2>
@@ -358,8 +471,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
-                        <span class="text-xs text-slate-500 font-medium">總預估開支 (估算)</span>
-                        <h3 id="analyticsTotalExpense" class="text-2xl font-bold text-brand-600 mt-1">$ 0</h3>
+                        <span class="text-xs text-slate-500 font-medium">出差報支總金額 (TWD)</span>
+                        <h3 id="analyticsTotalExpense" class="text-2xl font-bold text-brand-600 mt-1">NT$ 0</h3>
                     </div>
                     <div class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center text-lg">
                         <i class="fa-solid fa-sack-dollar"></i>
@@ -410,7 +523,7 @@
                 <!-- Chart 1: Category Expenses -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-brand-500"></i> 各類別預算開支比例
+                        <i class="fa-solid fa-chart-pie text-brand-500"></i> 各報支類別開支比例 (TWD)
                     </h4>
                     <div class="relative h-60">
                         <canvas id="categoryExpenseChart"></canvas>
@@ -429,7 +542,7 @@
             </div>
         </section>
 
-        <!-- Page 4: 旅行照片 -->
+        <!-- Page 5: 旅行照片 -->
         <section id="page-photos" class="tab-page hidden space-y-4">
             <div class="glass-card rounded-2xl p-4 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -517,17 +630,62 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // --- GLOBAL APP STATE ---
+        // --- GLOBAL APP STATE & LIVE EXCHANGE RATES CACHE ---
         let currentUser = null;
         let activeTabId = 'detailedItinerary';
         let isAuthModeLogin = true;
         let lastLocalEditTimestamp = 0;
         let saveTimeout = null;
 
+        // Fallback Exchange Rates against TWD
+        const exchangeRateCache = {
+            '台幣 TWD': 1.0,
+            '日圓 JPY': 0.21,
+            '美金 USD': 32.0,
+            '歐元 EUR': 34.5,
+            '泰銖 THB': 0.92,
+            '人民幣 CNY': 4.45,
+            '韓元 KRW': 0.023
+        };
+
+        const currencyToCodeMap = {
+            '台幣 TWD': 'TWD',
+            '日圓 JPY': 'JPY',
+            '美金 USD': 'USD',
+            '歐元 EUR': 'EUR',
+            '泰銖 THB': 'THB',
+            '人民幣 CNY': 'CNY',
+            '韓元 KRW': 'KRW'
+        };
+
+        // Fetch Live Exchange Rates
+        async function fetchLiveExchangeRates() {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/TWD');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.rates) {
+                        for (const [key, code] of Object.entries(currencyToCodeMap)) {
+                            if (code === 'TWD') {
+                                exchangeRateCache[key] = 1.0;
+                            } else if (data.rates[code]) {
+                                // Rate relative to TWD (1 Foreign Currency = X TWD)
+                                exchangeRateCache[key] = parseFloat((1 / data.rates[code]).toFixed(4));
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Live exchange rate fetch failed, using fallback static rates.", err);
+            }
+        }
+
         // Default Data Structure
+        const todayStr = new Date().toISOString().split('T')[0];
         let defaultAppData = {
             tabs: [
-                { id: 'detailedItinerary', name: '詳細行程表', type: 'system' },
+                { id: 'detailedItinerary', name: '行程明細列表', type: 'system' },
+                { id: 'expenseReport', name: '出差報支明細表', type: 'system' },
                 { id: 'packingList', name: '攜帶物品與行李確認', type: 'system' },
                 { id: 'analytics', name: '旅行分析圖表', type: 'system' },
                 { id: 'photos', name: '旅行照片', type: 'system' }
@@ -553,13 +711,29 @@
                 inboundPickupTime: ''
             },
             itineraryRows: [
-                { id: 'row1', date: '2026-10-26', period: '上午', startTime: '09:00', endTime: '12:00', category: '景點', topic: '成田機場抵達與住宿Check-in', detail: '搭乘早班機抵達東京成田機場，購買Skyliner車票前往飯店寄放行李。', transport: 'Skyliner 快線至日暮里轉山手線', currency: '日圓 JPY', cost: 2500, status: '已預約', notes: '記得索取實體車票與實名優惠券' },
-                { id: 'row2', date: '2026-10-26', period: '下午', startTime: '13:00', endTime: '17:00', category: '購物', topic: '淺草寺與仲見世通漫步', detail: '品嚐人形燒、參拜淺草寺求籤，欣賞雷門大燈籠。', transport: '地鐵銀座線', currency: '日圓 JPY', cost: 3000, status: '免預約', notes: '人潮較多請妥善保管個人財物' }
+                { id: 'row1', date: '2026-10-26', startTime: '09:00', endTime: '12:00', category: '景點', topic: '成田機場抵達與住宿Check-in', detail: '搭乘早班機抵達東京成田機場，購買Skyliner車票前往飯店寄放行李。', transport: 'Skyliner 快線至日暮里轉山手線', status: '已預約', notes: '記得索取實體車票與實名優惠券' },
+                { id: 'row2', date: '2026-10-26', startTime: '13:00', endTime: '17:00', category: '購物', topic: '淺草寺與仲見世通漫步', detail: '品嚐人形燒、參拜淺草寺求籤，欣賞雷門大燈籠。', transport: '地鐵銀座線', status: '免預約', notes: '人潮較多請妥善保管個人財物' }
+            ],
+            expenseTitle: '出差報支明細表',
+            expenseMeta: {
+                fillDate: todayStr,
+                empName: '',
+                empId: '',
+                dept: '',
+                title: '',
+                location: '',
+                reason: '',
+                period: ''
+            },
+            expenseRows: [
+                { id: 'exp1', date: '2026-10-26', category: '住宿', description: '東京歌舞伎町格拉斯麗飯店住宿', currency: '日圓 JPY', amount: 18000, exchangeRate: 0.21, twdAmount: 3780, notes: '住宿單據齊全' },
+                { id: 'exp2', date: '2026-10-26', category: '機票', description: '桃園-成田往返商務艙機票', currency: '台幣 TWD', amount: 24500, exchangeRate: 1.0, twdAmount: 24500, notes: '含託運行李' },
+                { id: 'exp3', date: '2026-10-27', category: '膳雜費', description: '出差期間第二日餐費津貼', currency: '日圓 JPY', amount: 3500, exchangeRate: 0.21, twdAmount: 735, notes: '標準誤餐費' }
             ],
             packingTitle: '出國行李清單與航空管制規範勾選確認表',
             packingRows: [
                 { id: 'p1', category: '證件與檔案', name: '護照 (效期6個月以上)', quantity: 1, rule: '隨身攜帶', packed: true, notes: '正本及影本各準備乙份' },
-                { id: 'p2', category: '電子產品', name: '行動電源 (10000mAh)', quantity: 1, rule: '限隨身攜帶', packed: false, notes: '嚴禁放入托運行李' },
+                { id: 'p2', category: '電子產品', name: '行動電源 (10000mAh)', quantity: 1, rule: '限隨身攜帶', packed: false, notes: '嚴禁放入託運行李' },
                 { id: 'p3', category: '個人衛生', name: '保濕隨身噴霧 (80ml)', quantity: 1, rule: '限隨身 (單瓶<100ml)', packed: false, notes: '需放入透明夾鏈袋' }
             ],
             photos: [
@@ -569,7 +743,7 @@
             customNotes: {}
         };
 
-        // 初始化時優先從 localStorage 讀取快取，避免重新整理 (F5) 時閃爍預設舊資料
+        // Load Cache
         let appData = defaultAppData;
         try {
             const cachedData = localStorage.getItem('gotrip_local_cache');
@@ -633,9 +807,10 @@
                     appData = val;
                     if (!appData.tabs) appData.tabs = defaultAppData.tabs;
                     if (!appData.itineraryMeta) appData.itineraryMeta = {};
+                    if (!appData.expenseMeta) appData.expenseMeta = {};
+                    if (!appData.expenseRows) appData.expenseRows = [];
                     if (!appData.photoViewMode) appData.photoViewMode = 'medium';
 
-                    // 同步更新 localStorage 快取
                     localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
 
                     renderTabs();
@@ -672,11 +847,21 @@
                 inboundPickupTime: document.getElementById('meta-inbound-pickup-time')?.value || ''
             };
 
+            appData.expenseMeta = {
+                fillDate: document.getElementById('expense-fill-date')?.value || '',
+                empName: document.getElementById('expense-emp-name')?.value || '',
+                empId: document.getElementById('expense-emp-id')?.value || '',
+                dept: document.getElementById('expense-dept')?.value || '',
+                title: document.getElementById('expense-title')?.value || '',
+                location: document.getElementById('expense-location')?.value || '',
+                reason: document.getElementById('expense-reason')?.value || '',
+                period: document.getElementById('expense-period')?.value || ''
+            };
+
             const now = new Date();
             const timestamp = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
             appData.lastSaved = timestamp;
 
-            // 靜態寫入 localStorage 本地快取
             localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
 
             if (activeTabId === 'analytics') {
@@ -793,6 +978,9 @@
             if (activeTabId === 'detailedItinerary') {
                 document.getElementById('page-detailedItinerary').classList.remove('hidden');
                 renderItineraryPage();
+            } else if (activeTabId === 'expenseReport') {
+                document.getElementById('page-expenseReport').classList.remove('hidden');
+                renderExpensePage();
             } else if (activeTabId === 'packingList') {
                 document.getElementById('page-packingList').classList.remove('hidden');
                 renderPackingPage();
@@ -817,7 +1005,7 @@
             }
         }
 
-        // --- 4. PAGE 1: DETAILED ITINERARY LOGIC ---
+        // --- 4. PAGE 1: DETAILED ITINERARY LOGIC (DOUBLE ROW HEIGHT) ---
 
         function renderItineraryPage() {
             document.getElementById('itineraryMainTitle').textContent = appData.itineraryTitle || 'XXXX 五天四夜深度自由行極致詳細行程表';
@@ -848,42 +1036,29 @@
             appData.itineraryRows.forEach((row) => {
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-id', row.id);
-                tr.className = 'hover:bg-slate-50/80 transition';
+                tr.className = 'hover:bg-slate-50/80 transition double-height-row';
 
                 const dateVal = row.date || row.day || '';
 
                 tr.innerHTML = `
-                    <td class="p-1.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
-                    <td class="p-1">
-                        <input type="date" value="${dateVal}" onchange="updateItineraryField('${row.id}', 'date', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs focus:ring-1 focus:ring-brand-500">
+                    <td class="p-2 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical text-sm"></i></td>
+                    <td class="p-2">
+                        <input type="date" value="${dateVal}" onchange="updateItineraryField('${row.id}', 'date', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-500">
                     </td>
-                    <td class="p-1">
-                        <select onchange="updateItineraryField('${row.id}', 'period', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
-                            <option value="上午" ${row.period === '上午' ? 'selected' : ''}>上午</option>
-                            <option value="下午" ${row.period === '下午' ? 'selected' : ''}>下午</option>
-                            <option value="晚上" ${row.period === '晚上' ? 'selected' : ''}>晚上</option>
-                        </select>
-                    </td>
-                    <td class="p-1"><input type="time" value="${row.startTime || ''}" onchange="updateItineraryField('${row.id}', 'startTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
-                    <td class="p-1"><input type="time" value="${row.endTime || ''}" onchange="updateItineraryField('${row.id}', 'endTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
-                    <td class="p-1">
-                        <select onchange="updateItineraryField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
+                    <td class="p-2"><input type="time" value="${row.startTime || ''}" onchange="updateItineraryField('${row.id}', 'startTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs"></td>
+                    <td class="p-2"><input type="time" value="${row.endTime || ''}" onchange="updateItineraryField('${row.id}', 'endTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs"></td>
+                    <td class="p-2">
+                        <select onchange="updateItineraryField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-brand-500 text-xs">
                             ${generateCategoryOptions(row.category)}
                         </select>
                     </td>
-                    <td class="p-1"><input type="text" value="${escapeHtml(row.topic || '')}" oninput="updateItineraryField('${row.id}', 'topic', this.value)" placeholder="行程主題" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
-                    <td class="p-1"><textarea oninput="updateItineraryField('${row.id}', 'detail', this.value)" placeholder="景點細節說明" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs h-10 resize-y">${escapeHtml(row.detail || '')}</textarea></td>
-                    <td class="p-1"><textarea oninput="updateItineraryField('${row.id}', 'transport', this.value)" placeholder="乘車路線指引" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs h-10 resize-y">${escapeHtml(row.transport || '')}</textarea></td>
-                    <td class="p-1">
-                        <select onchange="updateItineraryField('${row.id}', 'currency', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs">
-                            ${generateCurrencyOptions(row.currency)}
-                        </select>
-                    </td>
-                    <td class="p-1"><input type="number" value="${row.cost || 0}" oninput="updateItineraryField('${row.id}', 'cost', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
-                    <td class="p-1"><input type="text" value="${escapeHtml(row.status || '')}" oninput="updateItineraryField('${row.id}', 'status', this.value)" placeholder="預約狀態/票號" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
-                    <td class="p-1"><textarea oninput="updateItineraryField('${row.id}', 'notes', this.value)" placeholder="小貼士/備註" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs h-10 resize-y">${escapeHtml(row.notes || '')}</textarea></td>
-                    <td class="p-1 text-center">
-                        <button onclick="deleteItineraryRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                    <td class="p-2"><input type="text" value="${escapeHtml(row.topic || '')}" oninput="updateItineraryField('${row.id}', 'topic', this.value)" placeholder="行程主題" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs"></td>
+                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'detail', this.value)" placeholder="景點細節說明" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs leading-relaxed resize-y">${escapeHtml(row.detail || '')}</textarea></td>
+                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'transport', this.value)" placeholder="乘車路線指引" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs leading-relaxed resize-y">${escapeHtml(row.transport || '')}</textarea></td>
+                    <td class="p-2"><input type="text" value="${escapeHtml(row.status || '')}" oninput="updateItineraryField('${row.id}', 'status', this.value)" placeholder="預約狀態/票號" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs"></td>
+                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'notes', this.value)" placeholder="小貼士/備註" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs leading-relaxed resize-y">${escapeHtml(row.notes || '')}</textarea></td>
+                    <td class="p-2 text-center">
+                        <button onclick="deleteItineraryRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can text-sm"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -911,24 +1086,20 @@
         }
 
         function generateCurrencyOptions(selectedCurr) {
-            const currencies = ['日圓 JPY', '台幣 TWD', '泰銖 THB', '越南盾 VND', '美金 USD', '歐元 EUR', '韓元 KRW'];
+            const currencies = ['日圓 JPY', '台幣 TWD', '美金 USD', '歐元 EUR', '泰銖 THB', '人民幣 CNY', '韓元 KRW'];
             return currencies.map(c => `<option value="${c}" ${selectedCurr === c ? 'selected' : ''}>${c}</option>`).join('');
         }
 
         function addItineraryRow() {
-            const todayStr = new Date().toISOString().split('T')[0];
             const newRow = {
                 id: 'row_' + Date.now(),
                 date: todayStr,
-                period: '上午',
                 startTime: '09:00',
                 endTime: '10:00',
                 category: '景點',
                 topic: '',
                 detail: '',
                 transport: '',
-                currency: '日圓 JPY',
-                cost: 0,
                 status: '',
                 notes: ''
             };
@@ -941,7 +1112,7 @@
             const row = appData.itineraryRows.find(r => r.id === id);
             if (row) {
                 row[field] = value;
-                if (field === 'date') row.day = value; // 保持資料向下相容
+                if (field === 'date') row.day = value;
                 saveCurrentData();
             }
         }
@@ -952,7 +1123,138 @@
             renderItineraryPage();
         }
 
-        // --- 5. PAGE 2: PACKING LIST LOGIC ---
+        // --- 5. PAGE 2: EXPENSE REPORT LOGIC ---
+
+        function renderExpensePage() {
+            document.getElementById('expenseReportMainTitle').textContent = appData.expenseTitle || '出差報支明細表';
+            
+            const meta = appData.expenseMeta || {};
+            document.getElementById('expense-fill-date').value = meta.fillDate || todayStr;
+            document.getElementById('expense-emp-name').value = meta.empName || '';
+            document.getElementById('expense-emp-id').value = meta.empId || '';
+            document.getElementById('expense-dept').value = meta.dept || '';
+            document.getElementById('expense-title').value = meta.title || '';
+            document.getElementById('expense-location').value = meta.location || '';
+            document.getElementById('expense-reason').value = meta.reason || '';
+            document.getElementById('expense-period').value = meta.period || '';
+
+            const tbody = document.getElementById('expenseTableBody');
+            tbody.innerHTML = '';
+
+            let totalTwdSum = 0;
+
+            (appData.expenseRows || []).forEach((row) => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', row.id);
+                tr.className = 'hover:bg-slate-50/80 transition';
+
+                const rate = parseFloat(row.exchangeRate) || 1;
+                const amt = parseFloat(row.amount) || 0;
+                const twd = Math.round(row.currency === '台幣 TWD' ? amt : amt * rate);
+                row.twdAmount = twd;
+                totalTwdSum += twd;
+
+                tr.innerHTML = `
+                    <td class="p-1.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td class="p-1">
+                        <input type="date" value="${row.date || todayStr}" onchange="updateExpenseField('${row.id}', 'date', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs focus:ring-1 focus:ring-brand-500">
+                    </td>
+                    <td class="p-1">
+                        <select onchange="updateExpenseField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs">
+                            ${generateExpenseCategoryOptions(row.category)}
+                        </select>
+                    </td>
+                    <td class="p-1"><input type="text" value="${escapeHtml(row.description || '')}" oninput="updateExpenseField('${row.id}', 'description', this.value)" placeholder="費用項目/說明" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
+                    <td class="p-1">
+                        <select onchange="updateExpenseCurrency('${row.id}', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs">
+                            ${generateCurrencyOptions(row.currency)}
+                        </select>
+                    </td>
+                    <td class="p-1"><input type="number" step="any" value="${row.amount || 0}" oninput="updateExpenseField('${row.id}', 'amount', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
+                    <td class="p-1"><input type="number" step="0.0001" value="${row.exchangeRate || 1}" oninput="updateExpenseField('${row.id}', 'exchangeRate', parseFloat(this.value)||1)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
+                    <td class="p-1 text-right font-mono font-semibold text-slate-800 text-xs px-2">NT$ ${twd.toLocaleString()}</td>
+                    <td class="p-1"><input type="text" value="${escapeHtml(row.notes || '')}" oninput="updateExpenseField('${row.id}', 'notes', this.value)" placeholder="備註說明" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
+                    <td class="p-1 text-center">
+                        <button onclick="deleteExpenseRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Synchronize Both Auto Total Displays
+            document.getElementById('expenseTotalAmount').textContent = `NT$ ${totalTwdSum.toLocaleString()}`;
+            document.getElementById('expense-header-total').textContent = `NT$ ${totalTwdSum.toLocaleString()}`;
+
+            new Sortable(tbody, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: function () {
+                    const newOrder = [];
+                    tbody.querySelectorAll('tr').forEach(tr => {
+                        const id = tr.getAttribute('data-id');
+                        const item = appData.expenseRows.find(r => r.id === id);
+                        if (item) newOrder.push(item);
+                    });
+                    appData.expenseRows = newOrder;
+                    saveCurrentData();
+                }
+            });
+        }
+
+        function generateExpenseCategoryOptions(selected) {
+            const list = ['住宿', '機票', '交際費', '伴手禮', '膳雜費', '其他'];
+            return list.map(c => `<option value="${c}" ${selected === c ? 'selected' : ''}>${c}</option>`).join('');
+        }
+
+        function addExpenseRow() {
+            if (!appData.expenseRows) appData.expenseRows = [];
+            const defaultCurr = '日圓 JPY';
+            const rate = exchangeRateCache[defaultCurr] || 0.21;
+
+            const newRow = {
+                id: 'exp_' + Date.now(),
+                date: todayStr,
+                category: '住宿',
+                description: '',
+                currency: defaultCurr,
+                amount: 0,
+                exchangeRate: rate,
+                twdAmount: 0,
+                notes: ''
+            };
+            appData.expenseRows.push(newRow);
+            saveCurrentData();
+            renderExpensePage();
+        }
+
+        function updateExpenseCurrency(id, newCurr) {
+            const row = appData.expenseRows.find(r => r.id === id);
+            if (row) {
+                row.currency = newCurr;
+                row.exchangeRate = exchangeRateCache[newCurr] || 1.0;
+                saveCurrentData();
+                renderExpensePage();
+            }
+        }
+
+        function updateExpenseField(id, field, value) {
+            const row = appData.expenseRows.find(r => r.id === id);
+            if (row) {
+                row[field] = value;
+                saveCurrentData();
+                if (['amount', 'exchangeRate', 'currency'].includes(field)) {
+                    renderExpensePage();
+                }
+            }
+        }
+
+        function deleteExpenseRow(id) {
+            appData.expenseRows = appData.expenseRows.filter(r => r.id !== id);
+            saveCurrentData();
+            renderExpensePage();
+        }
+
+        // --- 6. PAGE 3: PACKING LIST LOGIC ---
 
         function renderPackingPage() {
             document.getElementById('packingListMainTitle').textContent = appData.packingTitle || '出國行李清單與航空管制規範勾選確認表';
@@ -1065,32 +1367,34 @@
             renderPackingPage();
         }
 
-        // --- 6. PAGE 3: ANALYTICS & CHARTS LOGIC ---
+        // --- 7. PAGE 4: ANALYTICS & CHARTS LOGIC ---
 
         let categoryExpenseChart = null;
         let dailyActivityChart = null;
 
         function renderAnalytics() {
             const rows = appData.itineraryRows || [];
+            const expRows = appData.expenseRows || [];
 
-            let totalCost = 0;
+            let totalTwdCost = 0;
             const categoryCostMap = {};
             const dayActivityMap = {};
 
+            expRows.forEach(r => {
+                const twd = r.twdAmount || Math.round((parseFloat(r.amount)||0) * (parseFloat(r.exchangeRate)||1));
+                totalTwdCost += twd;
+                const cat = r.category || '其他';
+                categoryCostMap[cat] = (categoryCostMap[cat] || 0) + twd;
+            });
+
             rows.forEach(r => {
-                const cost = parseFloat(r.cost) || 0;
-                totalCost += cost;
-
-                const cat = r.category || '其它';
-                categoryCostMap[cat] = (categoryCostMap[cat] || 0) + cost;
-
                 const day = r.date || r.day || '未指定日期';
                 dayActivityMap[day] = (dayActivityMap[day] || 0) + 1;
             });
 
             const uniqueDays = Object.keys(dayActivityMap).length;
 
-            document.getElementById('analyticsTotalExpense').textContent = `$ ${totalCost.toLocaleString()}`;
+            document.getElementById('analyticsTotalExpense').textContent = `NT$ ${totalTwdCost.toLocaleString()}`;
             document.getElementById('analyticsTotalItems').textContent = `${rows.length} 項`;
             document.getElementById('analyticsDaysCount').textContent = `${uniqueDays} 天`;
 
@@ -1154,7 +1458,7 @@
             });
         }
 
-        // --- 7. PAGE 4: TRAVEL PHOTOS LOGIC WITH 3 VIEW MODES ---
+        // --- 8. PAGE 5: TRAVEL PHOTOS LOGIC WITH 3 VIEW MODES ---
 
         function setPhotoViewMode(mode) {
             appData.photoViewMode = mode;
@@ -1253,7 +1557,7 @@
             document.getElementById('photoLightbox').classList.add('hidden');
         }
 
-        // --- 8. GLOBAL EDITABLE TITLE HELPER ---
+        // --- 9. GLOBAL EDITABLE TITLE HELPER ---
 
         function makeEditable(element, fieldKey) {
             const currentText = element.textContent.trim();
@@ -1266,6 +1570,7 @@
                 const updated = input.value.trim() || currentText;
                 element.textContent = updated;
                 if (fieldKey === 'itineraryMainTitle') appData.itineraryTitle = updated;
+                if (fieldKey === 'expenseReportMainTitle') appData.expenseTitle = updated;
                 if (fieldKey === 'packingListMainTitle') appData.packingTitle = updated;
                 if (fieldKey === 'customTabTitle') {
                     const tabObj = appData.tabs.find(t => t.id === activeTabId);
@@ -1284,15 +1589,15 @@
             input.focus();
         }
 
-        // --- 9. IMPORT / EXPORT TOOLS (EXCEL, PNG, PDF) ---
+        // --- 10. IMPORT / EXPORT TOOLS (EXCEL, PNG, PDF) ---
 
-        // Excel Export (SheetJS)
+        // Excel Export
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
             const meta = appData.itineraryMeta || {};
 
             // 1. Detailed Itinerary Sheet
-            const itineraryHeader = ["日期", "時段", "開始時間", "結束時間", "行程類別", "行程主題", "詳細景點與活動內容說明", "交通路線與乘車指引", "幣別", "預估花費", "預約狀態及票券", "備註與實用小貼士"];
+            const itineraryHeader = ["日期", "開始時間", "結束時間", "行程類別", "行程主題", "詳細景點與活動內容說明", "交通路線與乘車指引", "預約狀態及票券", "備註與實用小貼士"];
             const itineraryData = [
                 ["標題:", appData.itineraryTitle],
                 ["旅遊天數:", meta.duration || '', "目的地:", meta.destination || '', "同行人數:", meta.travelers || '', "住宿地點:", meta.hotel || ''],
@@ -1306,14 +1611,42 @@
 
             appData.itineraryRows.forEach(r => {
                 itineraryData.push([
-                    r.date || r.day || '', r.period, r.startTime, r.endTime, r.category, r.topic, r.detail, r.transport, r.currency, Number(r.cost)||0, r.status, r.notes
+                    r.date || r.day || '', r.startTime, r.endTime, r.category, r.topic, r.detail, r.transport, r.status, r.notes
                 ]);
             });
 
             const wsItinerary = XLSX.utils.aoa_to_sheet(itineraryData);
-            XLSX.utils.book_append_sheet(wb, wsItinerary, "詳細行程表");
+            XLSX.utils.book_append_sheet(wb, wsItinerary, "行程明細列表");
 
-            // 2. Packing List Sheet
+            // 2. Expense Report Sheet
+            const expMeta = appData.expenseMeta || {};
+            const expenseHeader = ["費用日期", "費用類別", "費用項目/說明", "幣別", "外幣金額", "匯率", "折合台幣(TWD)", "備註"];
+            const expenseData = [
+                ["標題:", appData.expenseTitle || '出差報支明細表'],
+                [
+                    "填表日期:", expMeta.fillDate || '',
+                    "員工姓名:", expMeta.empName || '',
+                    "員工工號:", expMeta.empId || '',
+                    "所屬部門:", expMeta.dept || '',
+                    "職稱:", expMeta.title || '',
+                    "出差地點:", expMeta.location || '',
+                    "出差事由:", expMeta.reason || '',
+                    "出差期間:", expMeta.period || ''
+                ],
+                [],
+                expenseHeader
+            ];
+
+            (appData.expenseRows || []).forEach(r => {
+                expenseData.push([
+                    r.date || '', r.category, r.description, r.currency, Number(r.amount)||0, Number(r.exchangeRate)||1, Number(r.twdAmount)||0, r.notes
+                ]);
+            });
+
+            const wsExpense = XLSX.utils.aoa_to_sheet(expenseData);
+            XLSX.utils.book_append_sheet(wb, wsExpense, "出差報支明細表");
+
+            // 3. Packing List Sheet
             const packingHeader = ["類別", "物品名稱", "數量", "行李規定", "已打包", "備註說明"];
             const packingData = [
                 ["標題:", appData.packingTitle],
@@ -1330,7 +1663,7 @@
             const wsPacking = XLSX.utils.aoa_to_sheet(packingData);
             XLSX.utils.book_append_sheet(wb, wsPacking, "攜帶物品與行李確認");
 
-            // Write Excel File
+            // Write File
             XLSX.writeFile(wb, `GoTrip_行程規劃表_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
@@ -1350,39 +1683,18 @@
                     const workbook = XLSX.read(data, { type: 'array' });
 
                     // Import Detailed Itinerary
-                    if (workbook.SheetNames.includes("詳細行程表")) {
-                        const ws = workbook.Sheets["詳細行程表"];
+                    const itinerarySheetName = workbook.SheetNames.find(n => n.includes("行程") || n.includes("詳細行程"));
+                    if (itinerarySheetName) {
+                        const ws = workbook.Sheets[itinerarySheetName];
                         const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
                         
-                        // Extract Header Meta if available
                         if (json[1]) {
                             appData.itineraryMeta.duration = json[1][1] || '';
                             appData.itineraryMeta.destination = json[1][3] || '';
                             appData.itineraryMeta.travelers = json[1][5] || '';
                             appData.itineraryMeta.hotel = json[1][7] || '';
                         }
-                        if (json[2]) {
-                            appData.itineraryMeta.outboundAirport = json[2][1] || '';
-                            appData.itineraryMeta.outboundFlight = json[2][3] || '';
-                            appData.itineraryMeta.outboundTerminal = json[2][5] || '';
-                            appData.itineraryMeta.outboundTime = json[2][7] || '';
-                        }
-                        if (json[3]) {
-                            appData.itineraryMeta.outboundDriver = json[3][1] || '';
-                            appData.itineraryMeta.outboundPickupTime = json[3][3] || '';
-                        }
-                        if (json[4]) {
-                            appData.itineraryMeta.inboundAirport = json[4][1] || '';
-                            appData.itineraryMeta.inboundFlight = json[4][3] || '';
-                            appData.itineraryMeta.inboundTerminal = json[4][5] || '';
-                            appData.itineraryMeta.inboundTime = json[4][7] || '';
-                        }
-                        if (json[5]) {
-                            appData.itineraryMeta.inboundDriver = json[5][1] || '';
-                            appData.itineraryMeta.inboundPickupTime = json[5][3] || '';
-                        }
 
-                        // Parse rows after header
                         const rows = [];
                         let isDataSection = false;
                         for (let i = 0; i < json.length; i++) {
@@ -1395,21 +1707,55 @@
                                 rows.push({
                                     id: 'row_' + Date.now() + '_' + i,
                                     date: row[0] || '',
-                                    period: row[1] || '上午',
-                                    startTime: row[2] || '',
-                                    endTime: row[3] || '',
-                                    category: row[4] || '景點',
-                                    topic: row[5] || '',
-                                    detail: row[6] || '',
-                                    transport: row[7] || '',
-                                    currency: row[8] || '日圓 JPY',
-                                    cost: Number(row[9]) || 0,
-                                    status: row[10] || '',
-                                    notes: row[11] || ''
+                                    startTime: row[1] || '',
+                                    endTime: row[2] || '',
+                                    category: row[3] || '景點',
+                                    topic: row[4] || '',
+                                    detail: row[5] || '',
+                                    transport: row[6] || '',
+                                    status: row[7] || '',
+                                    notes: row[8] || ''
                                 });
                             }
                         }
                         if (rows.length > 0) appData.itineraryRows = rows;
+                    }
+
+                    // Import Expense Report
+                    if (workbook.SheetNames.includes("出差報支明細表")) {
+                        const ws = workbook.Sheets["出差報支明細表"];
+                        const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+                        if (json[1]) {
+                            appData.expenseMeta.fillDate = json[1][1] || todayStr;
+                            appData.expenseMeta.empName = json[1][3] || '';
+                            appData.expenseMeta.empId = json[1][5] || '';
+                            appData.expenseMeta.dept = json[1][7] || '';
+                        }
+
+                        const expRows = [];
+                        let isDataSection = false;
+                        for (let i = 0; i < json.length; i++) {
+                            const row = json[i];
+                            if (row[0] === "費用日期") {
+                                isDataSection = true;
+                                continue;
+                            }
+                            if (isDataSection && row.length > 0) {
+                                expRows.push({
+                                    id: 'exp_' + Date.now() + '_' + i,
+                                    date: row[0] || todayStr,
+                                    category: row[1] || '住宿',
+                                    description: row[2] || '',
+                                    currency: row[3] || '日圓 JPY',
+                                    amount: Number(row[4]) || 0,
+                                    exchangeRate: Number(row[5]) || 1,
+                                    twdAmount: Number(row[6]) || 0,
+                                    notes: row[7] || ''
+                                });
+                            }
+                        }
+                        if (expRows.length > 0) appData.expenseRows = expRows;
                     }
 
                     // Import Packing List
@@ -1455,6 +1801,7 @@
         function exportToPNG() {
             let elementToCapture;
             if (activeTabId === 'detailedItinerary') elementToCapture = document.getElementById('itineraryPrintArea');
+            else if (activeTabId === 'expenseReport') elementToCapture = document.getElementById('expensePrintArea');
             else if (activeTabId === 'packingList') elementToCapture = document.getElementById('packingPrintArea');
             else elementToCapture = document.querySelector('main');
 
@@ -1470,6 +1817,7 @@
         function exportToPDF() {
             let elementToCapture;
             if (activeTabId === 'detailedItinerary') elementToCapture = document.getElementById('itineraryPrintArea');
+            else if (activeTabId === 'expenseReport') elementToCapture = document.getElementById('expensePrintArea');
             else if (activeTabId === 'packingList') elementToCapture = document.getElementById('packingPrintArea');
             else elementToCapture = document.querySelector('main');
 
@@ -1496,7 +1844,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // --- 10. AUTH MODAL DOM EVENT HANDLERS ---
+        // --- 11. AUTH MODAL DOM EVENT HANDLERS ---
         document.getElementById('tabLoginBtn').onclick = () => {
             isAuthModeLogin = true;
             document.getElementById('tabLoginBtn').className = "flex-1 py-2 font-medium text-brand-600 border-b-2 border-brand-600 text-center text-sm";
@@ -1555,7 +1903,8 @@
         };
 
         // Initialize App on Window Load
-        window.onload = function () {
+        window.onload = async function () {
+            await fetchLiveExchangeRates();
             renderTabs();
             renderActivePageContent();
         };
