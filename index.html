@@ -123,30 +123,30 @@
     </div>
 
     <!-- Main Navigation Top Bar -->
-    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 py-2">
+        <div class="max-w-full mx-auto flex flex-wrap items-center justify-between gap-4">
             <!-- Brand Logo -->
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+                <div class="w-8 h-8 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md">
                     <i class="fa-solid fa-compass"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-slate-900 text-lg leading-none">GoTrip 旅行規劃</h1>
-                    <span class="text-[10px] text-slate-400 font-medium">Realtime Travel Planner</span>
+                    <h1 class="font-bold text-slate-900 text-base leading-none">GoTrip 旅行規劃</h1>
+                    <span class="text-[9px] text-slate-400 font-medium">Realtime Travel Planner</span>
                 </div>
             </div>
 
             <!-- Sync & Status Info -->
-            <div class="flex items-center space-x-4 bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-200 text-xs">
+            <div class="flex items-center space-x-4 bg-slate-100/80 px-3 py-1 rounded-full border border-slate-200 text-xs">
                 <!-- Status Badge -->
                 <div class="flex items-center space-x-1.5">
-                    <span id="statusIndicator" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    <span id="statusIndicator" class="w-2 h-2 rounded-full bg-slate-400"></span>
                     <span id="statusText" class="font-medium text-slate-600">離線</span>
                 </div>
                 <div class="h-3 w-px bg-slate-300"></div>
                 <!-- Last Saved Time -->
-                <div class="text-slate-500 flex items-center gap-1">
-                    <i class="fa-regular fa-clock text-[11px]"></i>
+                <div class="text-slate-500 flex items-center gap-1 text-[11px]">
+                    <i class="fa-regular fa-clock text-[10px]"></i>
                     <span id="lastSavedTime">尚未儲存</span>
                 </div>
             </div>
@@ -154,21 +154,21 @@
             <!-- Global Actions & User Profile -->
             <div class="flex items-center space-x-2">
                 <!-- Export / Import Tools Dropdown or Direct Buttons -->
-                <div class="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200 space-x-1">
-                    <button onclick="triggerExcelImport()" title="匯入 Excel" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 space-x-1">
+                    <button onclick="triggerExcelImport()" title="匯入 Excel" class="px-2 py-1 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
                         <i class="fa-solid fa-file-import text-emerald-600"></i>
                         <span class="hidden sm:inline">匯入</span>
                     </button>
-                    <button onclick="exportToExcel()" title="匯出 Excel" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                    <button onclick="exportToExcel()" title="匯出 Excel" class="px-2 py-1 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
                         <i class="fa-solid fa-file-excel text-emerald-600"></i>
                         <span class="hidden sm:inline">Excel</span>
                     </button>
                     <div class="h-3 w-px bg-slate-300 my-auto"></div>
-                    <button onclick="exportToPNG()" title="輸出高畫質 PNG" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                    <button onclick="exportToPNG()" title="輸出高畫質 PNG" class="px-2 py-1 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
                         <i class="fa-regular fa-image text-blue-600"></i>
                         <span class="hidden sm:inline">PNG</span>
                     </button>
-                    <button onclick="exportToPDF()" title="輸出高畫質 PDF" class="px-2.5 py-1.5 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
+                    <button onclick="exportToPDF()" title="輸出高畫質 PDF" class="px-2 py-1 text-xs text-slate-700 hover:bg-white hover:shadow-sm rounded-md transition font-medium flex items-center gap-1">
                         <i class="fa-solid fa-file-pdf text-rose-600"></i>
                         <span class="hidden sm:inline">PDF</span>
                     </button>
@@ -178,8 +178,8 @@
 
                 <!-- User Info & Logout -->
                 <div id="userSection" class="flex items-center gap-2 pl-2">
-                    <span id="userDisplayName" class="text-xs font-semibold text-slate-700 bg-slate-200/60 px-2.5 py-1.5 rounded-lg border border-slate-200">未登入</span>
-                    <button id="authActionBtn" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs" title="登入/登出">
+                    <span id="userDisplayName" class="text-xs font-semibold text-slate-700 bg-slate-200/60 px-2 py-1 rounded-lg border border-slate-200">未登入</span>
+                    <button id="authActionBtn" class="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs" title="登入/登出">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
@@ -189,118 +189,83 @@
 
     <!-- Sub-Header Tabs (Page Management) -->
     <div class="bg-white border-b border-slate-200 px-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="max-w-full mx-auto flex items-center justify-between">
             <!-- Dynamic Tabs List -->
-            <div id="tabsContainer" class="flex items-center space-x-1 overflow-x-auto py-2">
+            <div id="tabsContainer" class="flex items-center space-x-1 overflow-x-auto py-1.5">
                 <!-- Rendered dynamically -->
             </div>
             <!-- Add New Tab Button -->
-            <button onclick="addNewTab()" class="ml-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition flex items-center gap-1 whitespace-nowrap border border-slate-200">
-                <i class="fa-solid fa-plus"></i>
+            <button onclick="addNewTab()" class="ml-2 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition flex items-center gap-1 whitespace-nowrap border border-slate-200">
+                <i class="fa-solid fa-plus text-[10px]"></i>
                 <span>新增分頁</span>
             </button>
         </div>
     </div>
 
     <!-- Main Dynamic Content Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+    <main class="flex-1 w-full mx-auto p-3 md:p-4 space-y-4">
         
         <!-- Page 1: 詳細行程表 -->
-        <section id="page-detailedItinerary" class="tab-page hidden space-y-6">
-            <!-- Header Card (Editable) -->
-            <div class="glass-card rounded-2xl p-6 shadow-sm">
-                <div class="mb-4">
-                    <h2 id="itineraryMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'itineraryMainTitle')" class="text-2xl md:text-3xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1.5 rounded-lg transition inline-block">
-                        XXXX 五天四夜深度自由行極致詳細行程表
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-pen text-[10px] mr-1"></i>雙擊標題以編輯內容</p>
-                </div>
-
-                <!-- Sub-header Meta Information Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 text-xs mb-4">
+        <section id="page-detailedItinerary" class="tab-page hidden space-y-3">
+            <!-- Compact Header Card (Editable) -->
+            <div class="glass-card rounded-xl p-3 shadow-sm border border-slate-200/80">
+                <div class="flex items-center justify-between gap-2 mb-2">
                     <div>
-                        <label class="block font-semibold text-slate-500 mb-1">旅遊天數</label>
-                        <input type="text" id="meta-duration" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：5天4夜">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">主要目的地</label>
-                        <input type="text" id="meta-destination" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：日本東京">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">同行人數</label>
-                        <input type="text" id="meta-travelers" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：2成人 1兒童">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">住宿地點</label>
-                        <input type="text" id="meta-hotel" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="例如：新宿格拉斯麗飯店">
+                        <h2 id="itineraryMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'itineraryMainTitle')" class="text-lg md:text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 px-2 py-0.5 rounded-lg transition inline-block">
+                            XXXX 五天四夜深度自由行極致詳細行程表
+                        </h2>
+                        <span class="text-[10px] text-slate-400 ml-2"><i class="fa-solid fa-pen text-[9px] mr-0.5"></i>雙擊編輯標題</span>
                     </div>
                 </div>
 
-                <!-- Flight Information Grid (Detailed Outbound & Inbound) -->
-                <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-xs space-y-3 mb-4">
-                    <div class="font-bold text-indigo-900 flex items-center gap-1.5">
-                        <i class="fa-solid fa-plane-departure text-brand-600"></i> 去程航班與接送資訊
+                <!-- Sub-header Meta Information Grid (Compact) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50/80 p-2 rounded-lg border border-slate-200/80 text-xs mb-2">
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-500 text-[11px] whitespace-nowrap">天數:</label>
+                        <input type="text" id="meta-duration" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800 text-xs" placeholder="如：5天4夜">
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">去程機場</label>
-                            <input type="text" id="meta-outbound-airport" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="如：桃園 TPE">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">去程航班</label>
-                            <input type="text" id="meta-outbound-flight" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="如：CI100">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">去程航廈</label>
-                            <input type="text" id="meta-outbound-terminal" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="如：第一航廈">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">去程登機時間</label>
-                            <input type="datetime-local" id="meta-outbound-time" onchange="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">去程機場接送人員</label>
-                            <input type="text" id="meta-outbound-driver" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="司機/聯絡人姓名">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">去程機場接送時間</label>
-                            <input type="datetime-local" id="meta-outbound-pickup-time" onchange="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800">
-                        </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-500 text-[11px] whitespace-nowrap">目的地:</label>
+                        <input type="text" id="meta-destination" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800 text-xs" placeholder="如：日本東京">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-500 text-[11px] whitespace-nowrap">人數:</label>
+                        <input type="text" id="meta-travelers" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800 text-xs" placeholder="如：2成人 1兒童">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-semibold text-slate-500 text-[11px] whitespace-nowrap">住宿:</label>
+                        <input type="text" id="meta-hotel" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand-500 text-slate-800 text-xs" placeholder="如：新宿格拉斯麗飯店">
                     </div>
                 </div>
 
-                <div class="bg-slate-100/70 p-4 rounded-xl border border-slate-200/80 text-xs space-y-3">
-                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-plane-arrival text-slate-600"></i> 回程航班與接送資訊
+                <!-- Flight Information Grid (Super Compact Outbound & Inbound) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 text-xs">
+                    <!-- Outbound -->
+                    <div class="bg-indigo-50/40 p-2 rounded-lg border border-indigo-100/80 flex flex-wrap items-center gap-1.5">
+                        <span class="font-bold text-indigo-900 text-[11px] flex items-center gap-1 w-full sm:w-auto">
+                            <i class="fa-solid fa-plane-departure text-brand-600"></i>去程:
+                        </span>
+                        <input type="text" id="meta-outbound-airport" oninput="saveCurrentData()" class="flex-1 min-w-[80px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="機場 (桃園TPE)">
+                        <input type="text" id="meta-outbound-flight" oninput="saveCurrentData()" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="航班 (CI100)">
+                        <input type="text" id="meta-outbound-terminal" oninput="saveCurrentData()" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="航廈 (T1)">
+                        <input type="datetime-local" id="meta-outbound-time" onchange="saveCurrentData()" class="w-36 bg-white border border-slate-200 rounded px-1 py-0.5 text-xs" title="登機時間">
+                        <input type="text" id="meta-outbound-driver" oninput="saveCurrentData()" class="flex-1 min-w-[90px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="接送司機/聯絡人">
+                        <input type="datetime-local" id="meta-outbound-pickup-time" onchange="saveCurrentData()" class="w-36 bg-white border border-slate-200 rounded px-1 py-0.5 text-xs" title="接送時間">
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">回程機場</label>
-                            <input type="text" id="meta-inbound-airport" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="如：成田 NRT">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">回程航班</label>
-                            <input type="text" id="meta-inbound-flight" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="如：CI101">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">回程航廈</label>
-                            <input type="text" id="meta-inbound-terminal" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="如：第二航廈">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">回程登機時間</label>
-                            <input type="datetime-local" id="meta-inbound-time" onchange="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">回程機場接送人員</label>
-                            <input type="text" id="meta-inbound-driver" oninput="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800" placeholder="司機/聯絡人姓名">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-600 mb-1">回程機場接送時間</label>
-                            <input type="datetime-local" id="meta-inbound-pickup-time" onchange="saveCurrentData()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 text-slate-800">
-                        </div>
+
+                    <!-- Inbound -->
+                    <div class="bg-slate-100/60 p-2 rounded-lg border border-slate-200/80 flex flex-wrap items-center gap-1.5">
+                        <span class="font-bold text-slate-800 text-[11px] flex items-center gap-1 w-full sm:w-auto">
+                            <i class="fa-solid fa-plane-arrival text-slate-600"></i>回程:
+                        </span>
+                        <input type="text" id="meta-inbound-airport" oninput="saveCurrentData()" class="flex-1 min-w-[80px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="機場 (成田NRT)">
+                        <input type="text" id="meta-inbound-flight" oninput="saveCurrentData()" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="航班 (CI101)">
+                        <input type="text" id="meta-inbound-terminal" oninput="saveCurrentData()" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="航廈 (T2)">
+                        <input type="datetime-local" id="meta-inbound-time" onchange="saveCurrentData()" class="w-36 bg-white border border-slate-200 rounded px-1 py-0.5 text-xs" title="登機時間">
+                        <input type="text" id="meta-inbound-driver" oninput="saveCurrentData()" class="flex-1 min-w-[90px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs" placeholder="接送司機/聯絡人">
+                        <input type="datetime-local" id="meta-inbound-pickup-time" onchange="saveCurrentData()" class="w-36 bg-white border border-slate-200 rounded px-1 py-0.5 text-xs" title="接送時間">
                     </div>
                 </div>
-
             </div>
 
             <!-- Table Actions Bar -->
@@ -308,31 +273,31 @@
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <i class="fa-solid fa-list-check text-brand-500"></i> 行程明細列表
                 </span>
-                <button onclick="addItineraryRow()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i>
+                <button onclick="addItineraryRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
                     <span>新增行程列</span>
                 </button>
             </div>
 
-            <!-- Printable Export Wrapper -->
-            <div id="itineraryPrintArea" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto p-2">
+            <!-- Printable Export Wrapper (Full Width) -->
+            <div id="itineraryPrintArea" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto p-1.5">
                 <table class="w-full text-left text-xs border-collapse min-w-[1200px]">
                     <thead>
                         <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200">
-                            <th class="p-2.5 w-10 text-center">拖拽</th>
-                            <th class="p-2.5 w-24">天數</th>
-                            <th class="p-2.5 w-20">時段</th>
-                            <th class="p-2.5 w-36">開始時間</th>
-                            <th class="p-2.5 w-36">結束時間</th>
-                            <th class="p-2.5 w-24">行程類別</th>
-                            <th class="p-2.5 w-36">行程主題</th>
-                            <th class="p-2.5 min-w-[180px]">詳細景點與活動內容說明</th>
-                            <th class="p-2.5 min-w-[180px]">交通路線與乘車指引</th>
-                            <th class="p-2.5 w-24">幣別</th>
-                            <th class="p-2.5 w-28">預估花費</th>
-                            <th class="p-2.5 w-32">預約狀態及票券</th>
-                            <th class="p-2.5 min-w-[150px]">備註與實用小貼士</th>
-                            <th class="p-2.5 w-12 text-center">操作</th>
+                            <th class="p-2 w-8 text-center">拖拽</th>
+                            <th class="p-2 w-24">天數</th>
+                            <th class="p-2 w-20">時段</th>
+                            <th class="p-2 w-28">開始時間</th>
+                            <th class="p-2 w-28">結束時間</th>
+                            <th class="p-2 w-24">行程類別</th>
+                            <th class="p-2 w-36">行程主題</th>
+                            <th class="p-2 min-w-[180px]">詳細景點與活動內容說明</th>
+                            <th class="p-2 min-w-[180px]">交通路線與乘車指引</th>
+                            <th class="p-2 w-24">幣別</th>
+                            <th class="p-2 w-28">預估花費</th>
+                            <th class="p-2 w-32">預約狀態及票券</th>
+                            <th class="p-2 min-w-[150px]">備註與實用小貼士</th>
+                            <th class="p-2 w-10 text-center">操作</th>
                         </tr>
                     </thead>
                     <tbody id="itineraryTableBody" class="divide-y divide-slate-100">
@@ -343,20 +308,20 @@
         </section>
 
         <!-- Page 2: 攜帶物品與行李確認 -->
-        <section id="page-packingList" class="tab-page hidden space-y-6">
-            <div class="glass-card rounded-2xl p-6 shadow-sm">
-                <h2 id="packingListMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'packingListMainTitle')" class="text-2xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1.5 rounded-lg transition inline-block">
+        <section id="page-packingList" class="tab-page hidden space-y-4">
+            <div class="glass-card rounded-2xl p-4 shadow-sm">
+                <h2 id="packingListMainTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'packingListMainTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100/80 p-1 rounded-lg transition inline-block">
                     出國行李清單與航空管制規範勾選確認表
                 </h2>
-                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-pen text-[10px] mr-1"></i>雙擊標題以編輯名稱</p>
+                <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-pen text-[9px] mr-1"></i>雙擊標題以編輯名稱</p>
             </div>
 
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
                     <i class="fa-solid fa-suitcase-rolling text-brand-500"></i> 行李打包檢查清單
                 </span>
-                <button onclick="addPackingRow()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i>
+                <button onclick="addPackingRow()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
                     <span>新增物品列</span>
                 </button>
             </div>
@@ -383,81 +348,81 @@
         </section>
 
         <!-- Page 3: 旅行分析圖表 -->
-        <section id="page-analytics" class="tab-page hidden space-y-6">
-            <div class="glass-card rounded-2xl p-6 shadow-sm">
-                <h2 class="text-2xl font-bold text-slate-900">旅行分析圖表與統計</h2>
-                <p class="text-xs text-slate-500 mt-1">根據詳細行程表數據即時連動計算與視覺化圖表分析</p>
+        <section id="page-analytics" class="tab-page hidden space-y-4">
+            <div class="glass-card rounded-2xl p-4 shadow-sm">
+                <h2 class="text-xl font-bold text-slate-900">旅行分析圖表與統計</h2>
+                <p class="text-xs text-slate-500 mt-0.5">根據詳細行程表數據即時連動計算與視覺化圖表分析</p>
             </div>
 
             <!-- Summary KPI Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                         <span class="text-xs text-slate-500 font-medium">總預估開支 (估算)</span>
                         <h3 id="analyticsTotalExpense" class="text-2xl font-bold text-brand-600 mt-1">$ 0</h3>
                     </div>
-                    <div class="w-12 h-12 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center text-xl">
+                    <div class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center text-lg">
                         <i class="fa-solid fa-sack-dollar"></i>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                         <span class="text-xs text-slate-500 font-medium">行程景點與活動數</span>
                         <h3 id="analyticsTotalItems" class="text-2xl font-bold text-emerald-600 mt-1">0 項</h3>
                     </div>
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg">
                         <i class="fa-solid fa-map-pin"></i>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                         <span class="text-xs text-slate-500 font-medium">規劃天數涵蓋</span>
                         <h3 id="analyticsDaysCount" class="text-2xl font-bold text-indigo-600 mt-1">0 天</h3>
                     </div>
-                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
                         <i class="fa-solid fa-calendar-days"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Flight Timeline & Route Banner -->
-            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-6 shadow-lg space-y-3">
+            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-4 shadow-lg space-y-2">
                 <div class="flex items-center space-x-2 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
                     <i class="fa-solid fa-plane"></i>
                     <span>航班去回與路線指引摘要</span>
                 </div>
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-slate-800 pt-3">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-slate-800 pt-2">
                     <div>
                         <div class="text-xs text-slate-400">目前設定航班</div>
-                        <div id="analyticsFlightText" class="text-base font-medium mt-0.5">未設定航班資訊</div>
+                        <div id="analyticsFlightText" class="text-sm font-medium mt-0.5">未設定航班資訊</div>
                     </div>
                     <div>
                         <div class="text-xs text-slate-400">主要目的地與住宿</div>
-                        <div id="analyticsHotelText" class="text-base font-medium mt-0.5">未設定目的地與住宿</div>
+                        <div id="analyticsHotelText" class="text-sm font-medium mt-0.5">未設定目的地與住宿</div>
                     </div>
                 </div>
             </div>
 
             <!-- Charts Container Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Chart 1: Category Expenses -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-chart-pie text-brand-500"></i> 各類別預算開支比例
                     </h4>
-                    <div class="relative h-64">
+                    <div class="relative h-60">
                         <canvas id="categoryExpenseChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Chart 2: Daily Activity Count -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-emerald-500"></i> 每日行程活動強度分布
                     </h4>
-                    <div class="relative h-64">
+                    <div class="relative h-60">
                         <canvas id="dailyActivityChart"></canvas>
                     </div>
                 </div>
@@ -465,42 +430,58 @@
         </section>
 
         <!-- Page 4: 旅行照片 -->
-        <section id="page-photos" class="tab-page hidden space-y-6">
-            <div class="glass-card rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <section id="page-photos" class="tab-page hidden space-y-4">
+            <div class="glass-card rounded-2xl p-4 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">旅行照片與視覺筆記</h2>
-                    <p class="text-xs text-slate-500 mt-1">無限新增與管理景點參考照片、地圖截圖或美食圖片</p>
+                    <h2 class="text-xl font-bold text-slate-900">旅行照片與視覺筆記</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">無限新增與管理景點參考照片、地圖截圖或美食圖片</p>
                 </div>
-                <button onclick="addNewPhotoCard()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>新增照片欄位</span>
-                </button>
+                
+                <div class="flex items-center gap-3">
+                    <!-- Photo Mode Switcher -->
+                    <div class="flex items-center bg-slate-200/70 p-1 rounded-xl border border-slate-300/60 text-xs font-semibold">
+                        <button onclick="setPhotoViewMode('small')" id="btnPhotoSmall" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-border-all text-[11px]"></i> 小圖
+                        </button>
+                        <button onclick="setPhotoViewMode('medium')" id="btnPhotoMedium" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-table-cells-large text-[11px]"></i> 中圖
+                        </button>
+                        <button onclick="setPhotoViewMode('large')" id="btnPhotoLarge" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-square text-[11px]"></i> 大圖
+                        </button>
+                    </div>
+
+                    <button onclick="addNewPhotoCard()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-medium shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>新增照片</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Photos Grid Container -->
-            <div id="photosGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div id="photosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Dynamic Photo Cards -->
             </div>
         </section>
 
         <!-- Custom User Added Dynamic Pages Container -->
-        <section id="page-customTab" class="tab-page hidden space-y-6">
-            <div class="glass-card rounded-2xl p-6 shadow-sm">
-                <h2 id="customTabTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'customTabTitle')" class="text-2xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg transition inline-block">
+        <section id="page-customTab" class="tab-page hidden space-y-4">
+            <div class="glass-card rounded-2xl p-4 shadow-sm">
+                <h2 id="customTabTitle" title="雙擊即可更改名稱" ondblclick="makeEditable(this, 'customTabTitle')" class="text-xl font-bold text-slate-900 cursor-pointer hover:bg-slate-100 p-1 rounded-lg transition inline-block">
                     自訂工作表
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">您可以自由新增備忘內容或獨立數據筆記</p>
+                <p class="text-xs text-slate-500 mt-0.5">您可以自由新增備忘內容或獨立數據筆記</p>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <textarea id="customTabTextarea" oninput="saveCurrentData()" class="w-full h-96 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-800 leading-relaxed" placeholder="在這裡寫下您的行程筆記、備忘錄或規劃草稿..."></textarea>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <textarea id="customTabTextarea" oninput="saveCurrentData()" class="w-full h-96 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-800 leading-relaxed" placeholder="在這裡寫下您的行程筆記、備忘錄或規劃草稿..."></textarea>
             </div>
         </section>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+    <footer class="bg-white border-t border-slate-200 py-3 mt-auto">
+        <div class="max-w-full mx-auto px-4 text-center text-xs text-slate-400">
             GoTrip 行程規劃器 &copy; 2026 | Firebase Realtime Database 即時同步版
         </div>
     </footer>
@@ -549,6 +530,7 @@
                 { id: 'analytics', name: '旅行分析圖表', type: 'system' },
                 { id: 'photos', name: '旅行照片', type: 'system' }
             ],
+            photoViewMode: 'medium', // small, medium, large
             itineraryTitle: 'XXXX 五天四夜深度自由行極致詳細行程表',
             itineraryMeta: {
                 duration: '',
@@ -621,11 +603,11 @@
             statusText.textContent = text;
 
             if (state === 'online') {
-                indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+                indicator.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
             } else if (state === 'syncing') {
-                indicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-spin';
+                indicator.className = 'w-2 h-2 rounded-full bg-amber-500 animate-spin';
             } else {
-                indicator.className = 'w-2.5 h-2.5 rounded-full bg-slate-400';
+                indicator.className = 'w-2 h-2 rounded-full bg-slate-400';
             }
         }
 
@@ -640,11 +622,11 @@
                     appData = val;
                     if (!appData.tabs) appData.tabs = defaultTabs();
                     if (!appData.itineraryMeta) appData.itineraryMeta = {};
+                    if (!appData.photoViewMode) appData.photoViewMode = 'medium';
                     renderTabs();
                     renderActivePageContent();
                     updateLastSavedDisplay();
                 } else {
-                    // Initialize empty cloud database with current default local data
                     saveCurrentData();
                 }
             });
@@ -720,7 +702,7 @@
             appData.tabs.forEach((tab) => {
                 const isActive = tab.id === activeTabId;
                 const tabBtn = document.createElement('div');
-                tabBtn.className = `flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer transition ${
+                tabBtn.className = `flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition ${
                     isActive ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`;
                 
@@ -736,10 +718,9 @@
 
                 tabBtn.appendChild(titleSpan);
 
-                // Add delete button for custom dynamic tabs
                 if (tab.type === 'custom') {
                     const delBtn = document.createElement('i');
-                    delBtn.className = `fa-solid fa-xmark text-[11px] ml-1 p-0.5 rounded-full hover:bg-black/20 ${isActive ? 'text-white' : 'text-slate-400'}`;
+                    delBtn.className = `fa-solid fa-xmark text-[10px] ml-1 p-0.5 rounded-full hover:bg-black/20 ${isActive ? 'text-white' : 'text-slate-400'}`;
                     delBtn.onclick = (e) => {
                         e.stopPropagation();
                         deleteTab(tab.id);
@@ -793,7 +774,6 @@
         }
 
         function renderActivePageContent() {
-            // Hide all pages
             document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
 
             if (activeTabId === 'detailedItinerary') {
@@ -809,7 +789,6 @@
                 document.getElementById('page-photos').classList.remove('hidden');
                 renderPhotosPage();
             } else {
-                // Render dynamic custom tab page
                 const customPage = document.getElementById('page-customTab');
                 customPage.classList.remove('hidden');
                 const tabObj = appData.tabs.find(t => t.id === activeTabId);
@@ -829,14 +808,12 @@
         function renderItineraryPage() {
             document.getElementById('itineraryMainTitle').textContent = appData.itineraryTitle || 'XXXX 五天四夜深度自由行極致詳細行程表';
             
-            // Fill Meta inputs
             const meta = appData.itineraryMeta || {};
             document.getElementById('meta-duration').value = meta.duration || '';
             document.getElementById('meta-destination').value = meta.destination || '';
             document.getElementById('meta-travelers').value = meta.travelers || '';
             document.getElementById('meta-hotel').value = meta.hotel || '';
 
-            // Outbound
             document.getElementById('meta-outbound-airport').value = meta.outboundAirport || '';
             document.getElementById('meta-outbound-flight').value = meta.outboundFlight || '';
             document.getElementById('meta-outbound-terminal').value = meta.outboundTerminal || '';
@@ -844,7 +821,6 @@
             document.getElementById('meta-outbound-driver').value = meta.outboundDriver || '';
             document.getElementById('meta-outbound-pickup-time').value = meta.outboundPickupTime || '';
 
-            // Inbound
             document.getElementById('meta-inbound-airport').value = meta.inboundAirport || '';
             document.getElementById('meta-inbound-flight').value = meta.inboundFlight || '';
             document.getElementById('meta-inbound-terminal').value = meta.inboundTerminal || '';
@@ -861,45 +837,44 @@
                 tr.className = 'hover:bg-slate-50/80 transition';
 
                 tr.innerHTML = `
-                    <td class="p-2.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
-                    <td class="p-2">
-                        <select onchange="updateItineraryField('${row.id}', 'day', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 focus:ring-1 focus:ring-brand-500">
+                    <td class="p-1.5 text-center text-slate-400 drag-handle"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td class="p-1">
+                        <select onchange="updateItineraryField('${row.id}', 'day', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
                             ${generateDayOptions(row.day)}
                         </select>
                     </td>
-                    <td class="p-2">
-                        <select onchange="updateItineraryField('${row.id}', 'period', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 focus:ring-1 focus:ring-brand-500">
+                    <td class="p-1">
+                        <select onchange="updateItineraryField('${row.id}', 'period', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
                             <option value="上午" ${row.period === '上午' ? 'selected' : ''}>上午</option>
                             <option value="下午" ${row.period === '下午' ? 'selected' : ''}>下午</option>
                             <option value="晚上" ${row.period === '晚上' ? 'selected' : ''}>晚上</option>
                         </select>
                     </td>
-                    <td class="p-2"><input type="time" value="${row.startTime || ''}" onchange="updateItineraryField('${row.id}', 'startTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
-                    <td class="p-2"><input type="time" value="${row.endTime || ''}" onchange="updateItineraryField('${row.id}', 'endTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
-                    <td class="p-2">
-                        <select onchange="updateItineraryField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 focus:ring-1 focus:ring-brand-500">
+                    <td class="p-1"><input type="time" value="${row.startTime || ''}" onchange="updateItineraryField('${row.id}', 'startTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
+                    <td class="p-1"><input type="time" value="${row.endTime || ''}" onchange="updateItineraryField('${row.id}', 'endTime', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
+                    <td class="p-1">
+                        <select onchange="updateItineraryField('${row.id}', 'category', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 focus:ring-1 focus:ring-brand-500 text-xs">
                             ${generateCategoryOptions(row.category)}
                         </select>
                     </td>
-                    <td class="p-2"><input type="text" value="${escapeHtml(row.topic || '')}" oninput="updateItineraryField('${row.id}', 'topic', this.value)" placeholder="行程主題" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
-                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'detail', this.value)" placeholder="景點細節說明" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 h-12 resize-y">${escapeHtml(row.detail || '')}</textarea></td>
-                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'transport', this.value)" placeholder="乘車路線指引" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 h-12 resize-y">${escapeHtml(row.transport || '')}</textarea></td>
-                    <td class="p-2">
-                        <select onchange="updateItineraryField('${row.id}', 'currency', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5">
+                    <td class="p-1"><input type="text" value="${escapeHtml(row.topic || '')}" oninput="updateItineraryField('${row.id}', 'topic', this.value)" placeholder="行程主題" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
+                    <td class="p-1"><textarea oninput="updateItineraryField('${row.id}', 'detail', this.value)" placeholder="景點細節說明" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs h-10 resize-y">${escapeHtml(row.detail || '')}</textarea></td>
+                    <td class="p-1"><textarea oninput="updateItineraryField('${row.id}', 'transport', this.value)" placeholder="乘車路線指引" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs h-10 resize-y">${escapeHtml(row.transport || '')}</textarea></td>
+                    <td class="p-1">
+                        <select onchange="updateItineraryField('${row.id}', 'currency', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs">
                             ${generateCurrencyOptions(row.currency)}
                         </select>
                     </td>
-                    <td class="p-2"><input type="number" value="${row.cost || 0}" oninput="updateItineraryField('${row.id}', 'cost', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 text-right font-mono"></td>
-                    <td class="p-2"><input type="text" value="${escapeHtml(row.status || '')}" oninput="updateItineraryField('${row.id}', 'status', this.value)" placeholder="預約狀態/票號" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5"></td>
-                    <td class="p-2"><textarea oninput="updateItineraryField('${row.id}', 'notes', this.value)" placeholder="小貼士/備註" class="w-full bg-slate-50 border border-slate-200 rounded-md p-1.5 h-12 resize-y">${escapeHtml(row.notes || '')}</textarea></td>
-                    <td class="p-2 text-center">
-                        <button onclick="deleteItineraryRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can"></i></button>
+                    <td class="p-1"><input type="number" value="${row.cost || 0}" oninput="updateItineraryField('${row.id}', 'cost', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
+                    <td class="p-1"><input type="text" value="${escapeHtml(row.status || '')}" oninput="updateItineraryField('${row.id}', 'status', this.value)" placeholder="預約狀態/票號" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
+                    <td class="p-1"><textarea oninput="updateItineraryField('${row.id}', 'notes', this.value)" placeholder="小貼士/備註" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs h-10 resize-y">${escapeHtml(row.notes || '')}</textarea></td>
+                    <td class="p-1 text-center">
+                        <button onclick="deleteItineraryRow('${row.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded-lg transition" title="刪除此列"><i class="fa-regular fa-trash-can text-xs"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // Re-initialize Sortable drag-and-drop
             new Sortable(tbody, {
                 handle: '.drag-handle',
                 animation: 150,
@@ -1091,7 +1066,6 @@
         function renderAnalytics() {
             const rows = appData.itineraryRows || [];
 
-            // Calculate Metrics
             let totalCost = 0;
             const categoryCostMap = {};
             const dayActivityMap = {};
@@ -1177,29 +1151,63 @@
             });
         }
 
-        // --- 7. PAGE 4: TRAVEL PHOTOS LOGIC ---
+        // --- 7. PAGE 4: TRAVEL PHOTOS LOGIC WITH 3 VIEW MODES ---
+
+        function setPhotoViewMode(mode) {
+            appData.photoViewMode = mode;
+            saveCurrentData();
+            renderPhotosPage();
+        }
 
         function renderPhotosPage() {
             const container = document.getElementById('photosGrid');
             container.innerHTML = '';
 
+            const mode = appData.photoViewMode || 'medium';
+
+            // Update mode switcher button styles
+            const btnSmall = document.getElementById('btnPhotoSmall');
+            const btnMedium = document.getElementById('btnPhotoMedium');
+            const btnLarge = document.getElementById('btnPhotoLarge');
+
+            btnSmall.className = `px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${mode === 'small' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`;
+            btnMedium.className = `px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${mode === 'medium' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`;
+            btnLarge.className = `px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${mode === 'large' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`;
+
+            // Adjust grid layout and height based on mode
+            let gridClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+            let imgHeightClass = 'h-48';
+
+            if (mode === 'small') {
+                gridClass = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3';
+                imgHeightClass = 'h-32';
+            } else if (mode === 'medium') {
+                gridClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+                imgHeightClass = 'h-48';
+            } else if (mode === 'large') {
+                gridClass = 'grid grid-cols-1 gap-6 max-w-3xl mx-auto';
+                imgHeightClass = 'h-80 md:h-96';
+            }
+
+            container.className = gridClass;
+
             appData.photos.forEach((ph) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm flex flex-col group';
+                card.className = 'bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm flex flex-col group transition duration-200';
 
                 card.innerHTML = `
-                    <div class="relative h-48 bg-slate-100 overflow-hidden cursor-pointer" onclick="openLightbox('${escapeHtml(ph.url)}')">
+                    <div class="relative ${imgHeightClass} bg-slate-100 overflow-hidden cursor-pointer" onclick="openLightbox('${escapeHtml(ph.url)}')">
                         <img src="${escapeHtml(ph.url)}" alt="${escapeHtml(ph.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=無圖片';">
                         <span class="absolute top-2 left-2 bg-slate-900/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm">${escapeHtml(ph.tag || '相片')}</span>
                     </div>
-                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                    <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
                         <div>
                             <input type="text" value="${escapeHtml(ph.title)}" oninput="updatePhotoField('${ph.id}', 'title', this.value)" placeholder="相片標題" class="w-full font-bold text-slate-800 text-sm border-b border-transparent focus:border-brand-500 focus:outline-none py-0.5">
-                            <input type="text" value="${escapeHtml(ph.tag)}" oninput="updatePhotoField('${ph.id}', 'tag', this.value)" placeholder="標籤 (例如：景點)" class="w-full text-xs text-slate-400 border-b border-transparent focus:border-brand-500 focus:outline-none py-0.5 mt-1">
+                            <input type="text" value="${escapeHtml(ph.tag)}" oninput="updatePhotoField('${ph.id}', 'tag', this.value)" placeholder="標籤 (例如：景點)" class="w-full text-xs text-slate-400 border-b border-transparent focus:border-brand-500 focus:outline-none py-0.5 mt-0.5">
                         </div>
-                        <div class="space-y-2 pt-2 border-t border-slate-100">
+                        <div class="space-y-1.5 pt-2 border-t border-slate-100">
                             <input type="text" value="${escapeHtml(ph.url)}" oninput="updatePhotoField('${ph.id}', 'url', this.value)" placeholder="圖片網址 URL" class="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
-                            <button onclick="deletePhotoCard('${ph.id}')" class="w-full py-1.5 text-xs text-rose-500 hover:bg-rose-50 rounded-lg transition font-medium flex items-center justify-center gap-1">
+                            <button onclick="deletePhotoCard('${ph.id}')" class="w-full py-1 text-xs text-rose-500 hover:bg-rose-50 rounded-lg transition font-medium flex items-center justify-center gap-1">
                                 <i class="fa-regular fa-trash-can"></i> 刪除相片
                             </button>
                         </div>
@@ -1251,7 +1259,7 @@
             const input = document.createElement('input');
             input.type = 'text';
             input.value = currentText;
-            input.className = 'text-2xl font-bold text-slate-900 border-b-2 border-brand-500 focus:outline-none bg-transparent w-full';
+            input.className = 'text-lg md:text-xl font-bold text-slate-900 border-b-2 border-brand-500 focus:outline-none bg-transparent w-full';
 
             input.onblur = function () {
                 const updated = input.value.trim() || currentText;
@@ -1421,7 +1429,7 @@
                                     id: 'p_' + Date.now() + '_' + i,
                                     category: row[0] || '其他雜物',
                                     name: row[1] || '',
-                                    quantity: parseInt(row[2], 10) || 1, // Forced Numeric
+                                    quantity: parseInt(row[2], 10) || 1,
                                     rule: row[3] || '可託運或隨身',
                                     packed: row[4] === "是" || row[4] === true,
                                     notes: row[5] || ''
