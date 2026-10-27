@@ -798,6 +798,12 @@
             console.error("Local cache load failed:", e);
         }
 
+        // 確保陣列與結構完整性
+        if (!appData.photos) appData.photos = [];
+        if (!appData.itineraryRows) appData.itineraryRows = [];
+        if (!appData.expenseRows) appData.expenseRows = [];
+        if (!appData.packingRows) appData.packingRows = [];
+
         if (!appData.tabs || !appData.tabs.some(t => t.id === 'expenseReport')) {
             appData.tabs = [
                 { id: 'detailedItinerary', name: '行程明細列表', type: 'system' },
@@ -867,6 +873,8 @@
                     if (!appData.itineraryMeta) appData.itineraryMeta = {};
                     if (!appData.expenseMeta) appData.expenseMeta = {};
                     if (!appData.expenseRows) appData.expenseRows = [];
+                    if (!appData.packingRows) appData.packingRows = [];
+                    if (!appData.photos) appData.photos = [];
                     if (!appData.photoViewMode) appData.photoViewMode = 'medium';
 
                     localStorage.setItem('gotrip_local_cache', JSON.stringify(appData));
@@ -1480,6 +1488,7 @@
         }
 
         function addPackingRow() {
+            if (!appData.packingRows) appData.packingRows = [];
             const newRow = {
                 id: 'p_' + Date.now(),
                 category: '個人衛生',
@@ -1607,6 +1616,7 @@
         }
 
         function renderPhotosPage() {
+            if (!appData.photos) appData.photos = [];
             const container = document.getElementById('photosGrid');
             container.innerHTML = '';
 
@@ -1663,6 +1673,7 @@
         }
 
         function addNewPhotoCard() {
+            if (!appData.photos) appData.photos = [];
             const newPhoto = {
                 id: 'ph_' + Date.now(),
                 title: '全新景點相片',
@@ -1675,6 +1686,7 @@
         }
 
         function updatePhotoField(id, field, value) {
+            if (!appData.photos) appData.photos = [];
             const ph = appData.photos.find(p => p.id === id);
             if (ph) {
                 ph[field] = value;
@@ -1683,6 +1695,7 @@
         }
 
         function deletePhotoCard(id) {
+            if (!appData.photos) appData.photos = [];
             appData.photos = appData.photos.filter(p => p.id !== id);
             saveCurrentData();
             renderPhotosPage();
