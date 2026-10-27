@@ -1321,7 +1321,7 @@
                             ${generateCurrencyOptions(row.currency)}
                         </select>
                     </td>
-                    <td class="p-1"><input type="number" step="any" value="${row.amount || 0}" oninput="updateExpenseField('${row.id}', 'amount', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
+                    <td class="p-1"><input type="text" value="${row.amount !== undefined && row.amount !== null ? row.amount : 0}" oninput="updateExpenseField('${row.id}', 'amount', parseFloat(this.value)||0)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
                     <td class="p-1"><input type="number" step="0.0001" value="${row.exchangeRate || 1}" oninput="updateExpenseField('${row.id}', 'exchangeRate', parseFloat(this.value)||1)" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-right font-mono text-xs"></td>
                     <td class="p-1 text-right font-mono font-semibold text-slate-800 text-xs px-2">NT$ ${twd.toLocaleString()}</td>
                     <td class="p-1"><input type="text" value="${escapeHtml(row.notes || '')}" oninput="updateExpenseField('${row.id}', 'notes', this.value)" placeholder="備註說明" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs"></td>
