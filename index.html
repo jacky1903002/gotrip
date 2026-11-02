@@ -1352,7 +1352,7 @@
         }
 
         function generateExpenseCategoryOptions(selected) {
-            const list = ['住宿', '機票', '交際費', '伴手禮', '膳雜費', '其他'];
+            const list = ['住宿', '機票', '交際費', '伴手禮', '膳雜費', '交通'];
             return list.map(c => `<option value="${c}" ${selected === c ? 'selected' : ''}>${c}</option>`).join('');
         }
 
